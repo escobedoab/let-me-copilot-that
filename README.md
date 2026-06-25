@@ -57,7 +57,7 @@ Parameters:
 The footer displays the current site version and build SHA, for example:
 
 ```text
-Version v0.8.0 · 72d374b
+Version v0.8.0 · 1a6a4f1
 ```
 
 After each publish, verify the visible footer version to make sure the browser is not showing a cached copy.
@@ -88,3 +88,4 @@ Customer-ready content posture:
 - Add a "private mode" that keeps the query in the URL hash instead of query string.
 - Add localization once the core flow is stable.
 - Add lightweight visual tests with Playwright before publishing widely.
+
