@@ -98,16 +98,34 @@
     }
 
     .page {
-      width: min(1120px, calc(100% - 32px));
+      width: min(1180px, calc(100% - 32px));
       margin: 0 auto;
-      padding: 32px 0 48px;
+      padding: 22px 0 42px;
     }
 
-    .hero {
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+      color: var(--cp-text-muted);
+      font-size: 0.92rem;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      color: var(--cp-text);
+    }
+
+    .shell {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
-      gap: 24px;
-      align-items: stretch;
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
     }
 
     .card {
@@ -117,31 +135,11 @@
       box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
     }
 
-    .intro {
-      padding: 32px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0 0 18px;
-      padding: 7px 11px;
-      border: 1px solid var(--cp-border);
-      border-radius: 999px;
-      color: var(--cp-text-muted);
-      background: var(--cp-surface-soft);
-      font-size: 0.88rem;
-    }
-
     h1 {
-      max-width: 780px;
-      margin: 0;
-      font-size: clamp(2.4rem, 7vw, 5.8rem);
-      line-height: 0.92;
-      letter-spacing: -0.06em;
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 4vw, 3.4rem);
+      line-height: 1;
+      letter-spacing: -0.045em;
     }
 
     .accent {
@@ -149,15 +147,16 @@
     }
 
     .lede {
-      max-width: 680px;
-      margin: 22px 0 0;
+      margin: 0 0 16px;
       color: var(--cp-text-muted);
-      font-size: 1.12rem;
-      line-height: 1.6;
+      font-size: 1rem;
+      line-height: 1.5;
     }
 
     .builder {
-      padding: 24px;
+      position: sticky;
+      top: 18px;
+      padding: 18px;
     }
 
     .builder h2,
@@ -262,8 +261,22 @@
     }
 
     .copilot-stage {
-      margin-top: 24px;
-      padding: 24px;
+      position: relative;
+      padding: 12px;
+      border-color: color-mix(in srgb, var(--cp-accent) 35%, var(--cp-border));
+      box-shadow: var(--cp-shadow);
+    }
+
+    .copilot-stage::before {
+      content: "";
+      position: absolute;
+      inset: -10px;
+      z-index: -1;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 50% 0%, var(--cp-highlight), transparent 58%),
+        linear-gradient(180deg, var(--cp-sheen), transparent);
+      pointer-events: none;
     }
 
     .browser {
@@ -306,8 +319,8 @@
 
     .copilot {
       position: relative;
-      min-height: 370px;
-      padding: 24px;
+      min-height: 520px;
+      padding: clamp(20px, 4vw, 42px);
     }
 
     .copilot-logo {
@@ -315,7 +328,7 @@
       align-items: center;
       gap: 10px;
       margin-bottom: 20px;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       font-weight: 800;
     }
 
@@ -337,14 +350,16 @@
       align-items: end;
       border: 1px solid var(--cp-border);
       border-radius: 16px;
-      padding: 14px;
+      padding: clamp(16px, 3vw, 24px);
       background: var(--cp-surface);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
     }
 
     .typed {
-      min-height: 72px;
+      min-height: 136px;
       line-height: 1.45;
       color: var(--cp-text);
+      font-size: clamp(1rem, 2vw, 1.35rem);
       white-space: pre-wrap;
     }
 
@@ -382,12 +397,13 @@
 
     .instruction {
       margin-top: 16px;
-      padding: 12px 14px;
+      padding: 14px 16px;
       border-left: 4px solid var(--cp-accent);
       border-radius: 0.625rem;
       background: var(--cp-accent-soft);
       color: var(--cp-text);
       min-height: 48px;
+      font-weight: 650;
     }
 
     .coach {
@@ -433,9 +449,10 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 16px;
-      margin-top: 24px;
+      margin-top: 18px;
+      opacity: 0.82;
     }
 
     .panel,
@@ -450,8 +467,27 @@
       line-height: 1.55;
     }
 
-    .research {
-      margin-top: 24px;
+    details.research {
+      margin-top: 18px;
+    }
+
+    details.research summary {
+      cursor: pointer;
+      font-weight: 800;
+      list-style: none;
+    }
+
+    details.research summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.research summary::after {
+      content: " +";
+      color: var(--cp-accent);
+    }
+
+    details.research[open] summary::after {
+      content: " -";
     }
 
     .research-grid {
@@ -483,18 +519,21 @@
     }
 
     @media (max-width: 860px) {
-      .hero,
+      .shell,
       .grid,
       .research-grid,
       .coach {
         grid-template-columns: 1fr;
       }
 
+      .builder {
+        position: static;
+      }
+
       .row {
         grid-template-columns: 1fr;
       }
 
-      .intro,
       .builder,
       .copilot-stage {
         padding: 20px;
@@ -518,15 +557,16 @@
 </head>
 <body>
   <main class="page">
-    <section class="hero">
-      <div class="intro card">
-        <p class="pill">Unofficial parody helper • no tracking • no Microsoft logos</p>
-        <h1>Let me <span class="accent">Copilot</span> that for you.</h1>
-        <p class="lede">For the teammate who asked a perfectly searchable question, but deserves a cheerful nudge instead of a snark missile. Type the question, generate a link, and share a tiny animated lesson in asking Copilot well.</p>
-      </div>
+    <div class="topbar">
+      <div class="brand"><span class="spark">✦</span> Let Me Copilot That</div>
+      <span>Unofficial parody helper • no tracking • no Microsoft logos</span>
+    </div>
 
+    <section class="shell">
       <form class="builder card" id="builder">
-        <h2>Create a teaching link</h2>
+        <h1>Let me <span class="accent">Copilot</span> that for you.</h1>
+        <p class="lede">Type a question, generate a link, and share a tiny animated lesson in asking Copilot well.</p>
+
         <label for="question">Question or task</label>
         <textarea id="question" placeholder="Example: Summarize the difference between Microsoft 365 Copilot and Copilot Chat"></textarea>
 
@@ -564,60 +604,56 @@
           </div>
         </div>
       </form>
-    </section>
 
-    <section class="copilot-stage card" aria-live="polite">
-      <div class="browser">
-        <div class="chrome">
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="address" id="address">https://copilot.microsoft.com/</span>
-        </div>
-        <div class="copilot">
-          <div class="copilot-logo"><span class="spark">✦</span> Copilot</div>
-          <div class="prompt-box">
-            <div class="typed caret" id="typed"></div>
-            <button class="btn primary" id="ask-button" type="button">Ask</button>
+      <section class="copilot-stage card" aria-live="polite">
+        <div class="browser">
+          <div class="chrome">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="address" id="address">https://copilot.microsoft.com/</span>
           </div>
-          <div class="instruction" id="instruction">Step 1: Ask a clear question.</div>
-          <div class="fake-cursor" id="cursor" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M4 2l15 14-7 1.2L8.2 23 4 2z"></path></svg>
-          </div>
-          <div class="coach">
-            <div class="tip"><strong>Context</strong>Tell Copilot what you are working on.</div>
-            <div class="tip"><strong>Outcome</strong>Ask for the format you want back.</div>
-            <div class="tip"><strong>Constraints</strong>Add tone, length, audience, or sources.</div>
-          </div>
-          <div class="result-panel" id="result-panel">
-            <p id="punchline">Look at that. A question became a prompt.</p>
-            <div class="actions">
-              <a class="btn primary" id="launch" target="_blank" rel="noopener noreferrer">Open the helpful place</a>
-              <button class="btn" id="copy-prompt" type="button">Copy improved prompt</button>
-              <button class="btn" id="replay" type="button">Replay</button>
+          <div class="copilot">
+            <div class="copilot-logo"><span class="spark">✦</span> Copilot</div>
+            <div class="prompt-box">
+              <div class="typed caret" id="typed"></div>
+              <button class="btn primary" id="ask-button" type="button">Ask</button>
+            </div>
+            <div class="instruction" id="instruction">Step 1: Ask a clear question.</div>
+            <div class="fake-cursor" id="cursor" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 2l15 14-7 1.2L8.2 23 4 2z"></path></svg>
+            </div>
+            <div class="coach">
+              <div class="tip"><strong>Context</strong>Tell Copilot what you are working on.</div>
+              <div class="tip"><strong>Outcome</strong>Ask for the format you want back.</div>
+              <div class="tip"><strong>Constraints</strong>Add tone, length, audience, or sources.</div>
+            </div>
+            <div class="result-panel" id="result-panel">
+              <p id="punchline">Look at that. A question became a prompt.</p>
+              <div class="actions">
+                <a class="btn primary" id="launch" target="_blank" rel="noopener noreferrer">Open the helpful place</a>
+                <button class="btn" id="copy-prompt" type="button">Copy improved prompt</button>
+                <button class="btn" id="replay" type="button">Replay</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </section>
 
     <section class="grid">
       <article class="panel card">
-        <h2>Why this is nicer</h2>
+        <h2>The joke, but useful</h2>
         <p>The original joke is funny because it teaches the obvious thing visually. This version keeps the wink, but nudges toward better prompting instead of just shaming the asker.</p>
       </article>
       <article class="panel card">
-        <h2>Value add idea</h2>
-        <p>Add prompt recipes by audience: executive summary, beginner explanation, troubleshooting checklist, email draft, meeting agenda, or Microsoft Learn path.</p>
-      </article>
-      <article class="panel card">
         <h2>Public-site safe</h2>
-        <p>No official Microsoft marks, no copied assets, no analytics, no backend, and no user data stored. The URL itself carries the question.</p>
+        <p>No official Microsoft marks, no copied assets, no analytics, no backend, and no user data stored. The URL carries the prompt.</p>
       </article>
     </section>
 
-    <section class="research card">
-      <h2>Research notes from the original pattern</h2>
+    <details class="research card">
+      <summary>Research notes and future value-add ideas</summary>
       <div class="research-grid">
         <div>
           <p>The current Let Me Google That page is a JavaScript-driven static experience. Its public HTML exposes a classic search box, two buttons, generated share URL, copy/preview/shorten controls, share buttons, and a query-string player.</p>
@@ -628,7 +664,7 @@
           <p>Recommended public positioning: "Unofficial parody / prompt coaching helper." Keep it clearly unaffiliated with Microsoft and avoid official logos unless you have brand approval.</p>
         </div>
       </div>
-    </section>
+    </details>
 
     <footer>
       Built for laughs, better prompts, and fewer "quick question" drive-bys. Not affiliated with Microsoft.
