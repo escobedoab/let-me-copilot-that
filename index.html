@@ -452,6 +452,55 @@
       color: var(--cp-text-muted);
     }
 
+    .coaching-panel {
+      display: grid;
+      gap: 12px;
+      margin: 14px 0;
+      padding: 14px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+    }
+
+    .coaching-panel h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .prompt-preview {
+      margin: 0;
+      padding: 12px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-bg-elevated);
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+
+    .why-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .why-list li {
+      padding: 10px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      color: var(--cp-text-muted);
+      background: var(--cp-surface);
+      line-height: 1.4;
+    }
+
+    .why-list strong {
+      display: block;
+      color: var(--cp-text);
+      margin-bottom: 3px;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -537,7 +586,8 @@
       .shell,
       .grid,
       .research-grid,
-      .coach {
+      .coach,
+      .why-list {
         grid-template-columns: 1fr;
       }
 
@@ -646,6 +696,16 @@
             </div>
             <div class="result-panel" id="result-panel">
               <p id="punchline">Look at that. A question became a prompt.</p>
+              <div class="coaching-panel">
+                <h3>What changed and why</h3>
+                <p class="prompt-preview" id="prompt-preview"></p>
+                <ul class="why-list">
+                  <li><strong>Clear intent</strong><span id="why-intent">Turns a casual question into a direct request.</span></li>
+                  <li><strong>AI-answer cue</strong><span id="why-ai">Asks for a synthesized answer, which can help trigger AI-style results.</span></li>
+                  <li><strong>Useful structure</strong><span id="why-structure">Requests concise explanation, key points, and next steps.</span></li>
+                  <li><strong>Better constraints</strong><span id="why-constraints">Adds tone and output guidance so the answer is easier to use.</span></li>
+                </ul>
+              </div>
               <div class="actions">
                 <button class="btn primary" id="launch" type="button">Submit to Bing</button>
                 <button class="btn" id="copy-prompt" type="button">Copy improved prompt</button>
@@ -708,7 +768,7 @@
         label: "Bing search",
         address: "https://www.bing.com/search",
         prefill: true,
-        buildUrl: (query) => `https://www.bing.com/search?q=${encodeURIComponent(query)}`
+        buildUrl: (query) => `https://www.bing.com/search?q=${encodeURIComponent(query)}&showconv=1&sendquery=1`
       },
       learn: {
         label: "Microsoft Learn",
@@ -733,12 +793,20 @@
     function enhancedPrompt(question, tone) {
       const trimmed = question.trim();
       if (tone === "coach") {
-        return `Help me with this: ${trimmed}\n\nPlease explain the answer clearly, include assumptions, and give me next steps I can act on.`;
+        return `Use an AI-generated answer to help me with this: ${trimmed}\n\nPlease synthesize the answer clearly, include assumptions, organize the key points, and give me next steps I can act on.`;
       }
       if (tone === "playful") {
-        return `${trimmed}\n\nAnswer directly, keep it practical, and pretend I searched before asking.`;
+        return `Use an AI-generated answer to explain: ${trimmed}\n\nAnswer directly, keep it practical, summarize the most important points, and include what I should do next.`;
       }
-      return `${trimmed}\n\nPlease give me a concise, helpful answer with the most useful next step.`;
+      return `Use an AI-generated answer to explain: ${trimmed}\n\nPlease give me a concise, helpful summary, the key points, and the most useful next step.`;
+    }
+
+    function updateCoaching(prompt) {
+      $("#prompt-preview").textContent = prompt;
+      $("#why-intent").textContent = "Reframes the question as a direct request for an answer, not just keywords.";
+      $("#why-ai").textContent = "Adds language like \"AI-generated answer,\" \"synthesize,\" and \"summary\" to encourage an AI-style response.";
+      $("#why-structure").textContent = "Requests key points and next steps so the response is scannable and actionable.";
+      $("#why-constraints").textContent = "Adds practical tone and format guidance that works across modern AI assistants and AI search.";
     }
 
     function clearTimers() {
@@ -819,6 +887,7 @@
         setInstruction(toneLines[state.tone]);
         $("#result-panel").classList.add("show");
         $("#punchline").textContent = toneLines[state.tone];
+        updateCoaching(enhancedPrompt(state.question, state.tone));
         $("#launch").textContent = destinations[state.destination].prefill
           ? `Submit to ${destinations[state.destination].label}`
           : `Copy prompt + open ${destinations[state.destination].label}`;

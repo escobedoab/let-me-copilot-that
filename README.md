@@ -22,6 +22,8 @@ Research summary from the current public site and search snippets:
 - Copilot destination copies the improved prompt before opening Copilot because the public Copilot site does not reliably support a prefilled prompt URL.
 - The submit button animates before opening Bing with the rewritten prompt already searched.
 - The share button uses the browser share sheet when available and falls back to copying the hosted link.
+- Rewritten prompts include AI-answer cues such as "AI-generated answer," "synthesize," "summary," "key points," and "next step" to increase the chance of an AI-style search response.
+- Bing ultimately controls whether an AI answer appears; account, region, query, and feature rollout can still affect the result.
 - No analytics, no third-party scripts, no backend, and no stored user data.
 - GitHub Pages-ready static deployment.
 - Accessibility basics, responsive layout, and reduced-motion support.
@@ -61,6 +63,7 @@ Customer-ready content posture:
 - Avoid official Microsoft logos or brand marks unless approved.
 - Do not collect analytics or store prompts.
 - Treat copied prompts as user-provided content carried only in the URL.
+- Be transparent that the site encourages AI-search responses but cannot force Bing to show one every time.
 
 ## Value-add backlog
 
