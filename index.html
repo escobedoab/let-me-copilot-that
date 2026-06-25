@@ -98,7 +98,7 @@
     }
 
     .page {
-      width: min(1180px, calc(100% - 32px));
+      width: min(1320px, calc(100% - 24px));
       margin: 0 auto;
       padding: 22px 0 42px;
     }
@@ -123,8 +123,8 @@
 
     .shell {
       display: grid;
-      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
-      gap: 18px;
+      grid-template-columns: minmax(270px, 330px) minmax(0, 1fr);
+      gap: 22px;
       align-items: start;
     }
 
@@ -373,7 +373,7 @@
 
     .copilot {
       position: relative;
-      min-height: 520px;
+      min-height: 590px;
       padding: clamp(20px, 4vw, 42px);
     }
 
@@ -802,13 +802,13 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.8.6</span></span>
+      <span>Version <span id="version">v0.8.7</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.8.6";
+    const SITE_VERSION = "v0.8.7";
 
     const state = {
       question: "",
