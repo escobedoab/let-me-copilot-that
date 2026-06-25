@@ -523,6 +523,10 @@
       background: var(--cp-surface-soft);
     }
 
+    .coaching-panel[hidden] {
+      display: none !important;
+    }
+
     .coaching-panel h3 {
       margin: 0;
       font-size: 1rem;
@@ -817,13 +821,13 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.9.7</span></span>
+      <span>Version <span id="version">v0.9.8</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.9.7";
+    const SITE_VERSION = "v0.9.8";
 
     const state = {
       question: "",

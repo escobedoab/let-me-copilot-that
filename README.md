@@ -61,7 +61,7 @@ Parameters:
 The footer displays the current site version, for example:
 
 ```text
-Version v0.9.7
+Version v0.9.8
 ```
 
 After each publish, verify the visible footer version to make sure the browser is not showing a cached copy.
