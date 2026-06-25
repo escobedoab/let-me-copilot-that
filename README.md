@@ -20,6 +20,8 @@ Research summary from the current public site and search snippets:
 - Bing search is the default destination because it supports reliable query URLs for public sharing.
 - Optional destinations include Copilot, Microsoft Learn, and Microsoft 365 search.
 - Copilot destination copies the improved prompt before opening Copilot because the public Copilot site does not reliably support a prefilled prompt URL.
+- The submit button animates before opening Bing with the rewritten prompt already searched.
+- The share button uses the browser share sheet when available and falls back to copying the hosted link.
 - No analytics, no third-party scripts, no backend, and no stored user data.
 - GitHub Pages-ready static deployment.
 - Accessibility basics, responsive layout, and reduced-motion support.

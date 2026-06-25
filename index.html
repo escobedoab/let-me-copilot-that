@@ -242,6 +242,11 @@
       background: var(--cp-accent-hover);
     }
 
+    .btn.pulse {
+      animation: buttonPulse 760ms ease-in-out 2;
+      box-shadow: 0 0 0 6px var(--cp-accent-soft);
+    }
+
     .output {
       display: none;
       margin-top: 18px;
@@ -518,6 +523,16 @@
       }
     }
 
+    @keyframes buttonPulse {
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(-1px) scale(1.03);
+      }
+    }
+
     @media (max-width: 860px) {
       .shell,
       .grid,
@@ -599,7 +614,8 @@
           <label for="share-url">Share URL</label>
           <input id="share-url" type="text" readonly>
           <div class="actions">
-            <button class="btn primary" id="copy-link" type="button">Copy link</button>
+            <button class="btn primary" id="share-link" type="button">Share link</button>
+            <button class="btn" id="copy-link" type="button">Copy link</button>
             <a class="btn" id="open-link" href="#">Open preview</a>
           </div>
         </div>
@@ -614,10 +630,10 @@
             <span class="address" id="address">https://copilot.microsoft.com/</span>
           </div>
           <div class="copilot">
-            <div class="copilot-logo"><span class="spark">✦</span> Copilot</div>
+            <div class="copilot-logo"><span class="spark">✦</span> <span id="service-name">Bing search</span></div>
             <div class="prompt-box">
               <div class="typed caret" id="typed"></div>
-              <button class="btn primary" id="ask-button" type="button">Ask</button>
+              <button class="btn primary" id="ask-button" type="button">Search</button>
             </div>
             <div class="instruction" id="instruction">Step 1: Ask a clear question.</div>
             <div class="fake-cursor" id="cursor" aria-hidden="true">
@@ -631,7 +647,7 @@
             <div class="result-panel" id="result-panel">
               <p id="punchline">Look at that. A question became a prompt.</p>
               <div class="actions">
-                <a class="btn primary" id="launch" target="_blank" rel="noopener noreferrer">Open the helpful place</a>
+                <button class="btn primary" id="launch" type="button">Submit to Bing</button>
                 <button class="btn" id="copy-prompt" type="button">Copy improved prompt</button>
                 <button class="btn" id="replay" type="button">Replay</button>
               </div>
@@ -765,8 +781,12 @@
 
     async function copyText(text) {
       if (navigator.clipboard) {
-        await navigator.clipboard.writeText(text);
-        return;
+        try {
+          await navigator.clipboard.writeText(text);
+          return;
+        } catch {
+          // Fall through to the legacy copy path.
+        }
       }
       const temp = document.createElement("textarea");
       temp.value = text;
@@ -793,10 +813,8 @@
         setInstruction(toneLines[state.tone]);
         $("#result-panel").classList.add("show");
         $("#punchline").textContent = toneLines[state.tone];
-        const prompt = enhancedPrompt(state.question, state.tone);
-        $("#launch").href = destinations[state.destination].buildUrl(prompt);
         $("#launch").textContent = destinations[state.destination].prefill
-          ? `Open ${destinations[state.destination].label}`
+          ? `Submit to ${destinations[state.destination].label}`
           : `Copy prompt + open ${destinations[state.destination].label}`;
         setCursor(300, 48, false);
       });
@@ -810,7 +828,11 @@
       $("#typed").textContent = "";
       $("#result-panel").classList.remove("show");
       $("#address").textContent = destinations[destination].address;
-      setInstruction("Step 1: Put the question where the helpful robot can see it.");
+      $("#service-name").textContent = destinations[destination].label;
+      $("#ask-button").textContent = destination === "bing" ? "Search" : "Ask";
+      setInstruction(destination === "bing"
+        ? "Step 1: Put the improved prompt into Bing search."
+        : "Step 1: Put the question where the helpful assistant can see it.");
       setCursor(-4, 78);
       wait(500, () => {
         setCursor(62, 106);
@@ -845,6 +867,28 @@
       });
     });
 
+    $("#share-link").addEventListener("click", async () => {
+      const shareUrl = $("#share-url").value;
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "Let Me Copilot That For You",
+            text: "Here is a friendly prompt helper link.",
+            url: shareUrl
+          });
+          return;
+        } catch {
+          // If the user cancels or sharing is unavailable, copy instead.
+        }
+      }
+
+      await copyText(shareUrl);
+      $("#share-link").textContent = "Copied";
+      wait(1200, () => {
+        $("#share-link").textContent = "Share link";
+      });
+    });
+
     $("#copy-prompt").addEventListener("click", async () => {
       await copyText(enhancedPrompt(state.question, state.tone));
       $("#copy-prompt").textContent = "Prompt copied";
@@ -853,17 +897,36 @@
       });
     });
 
-    $("#launch").addEventListener("click", async (event) => {
-      if (destinations[state.destination].prefill) {
-        return;
-      }
+    $("#launch").addEventListener("click", async () => {
+      const destination = destinations[state.destination];
+      const prompt = enhancedPrompt(state.question, state.tone);
+      const button = $("#launch");
+      const buttonBox = button.getBoundingClientRect();
+      const stageBox = $(".copilot").getBoundingClientRect();
 
-      event.preventDefault();
-      await copyText(enhancedPrompt(state.question, state.tone));
-      $("#launch").textContent = "Prompt copied — opening Copilot";
-      window.open(destinations[state.destination].address, "_blank", "noopener,noreferrer");
-      wait(1600, () => {
-        $("#launch").textContent = `Copy prompt + open ${destinations[state.destination].label}`;
+      clearTimers();
+      setInstruction(`Step 3: Submit the rewritten prompt to ${destination.label}.`);
+      setCursor(buttonBox.left - stageBox.left + 16, buttonBox.top - stageBox.top + 12);
+      button.classList.add("pulse");
+      button.textContent = destination.prefill ? "Submitting..." : "Copying prompt...";
+
+      wait(900, async () => {
+        if (destination.prefill) {
+          button.textContent = `Opening ${destination.label}`;
+          window.open(destination.buildUrl(prompt), "_blank", "noopener,noreferrer");
+        } else {
+          await copyText(prompt);
+          button.textContent = "Prompt copied — opening Copilot";
+          window.open(destination.address, "_blank", "noopener,noreferrer");
+        }
+
+        wait(1300, () => {
+          button.classList.remove("pulse");
+          button.textContent = destination.prefill
+            ? `Submit to ${destination.label}`
+            : `Copy prompt + open ${destination.label}`;
+          setCursor(300, 48, false);
+        });
       });
     });
 
