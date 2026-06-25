@@ -198,6 +198,13 @@
       box-shadow: 0 0 0 4px var(--cp-accent-soft);
     }
 
+    .helper {
+      margin: 8px 0 0;
+      color: var(--cp-text-muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
     .row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -388,9 +395,8 @@
       pointer-events: none;
       color: var(--cp-text);
       filter: drop-shadow(0 2px 2px var(--cp-border));
-      transform: translate(0, 0);
       opacity: 0;
-      transition: transform 900ms ease, opacity 180ms ease;
+      transition: left 900ms ease, top 900ms ease, opacity 180ms ease;
     }
 
     .fake-cursor svg {
@@ -635,6 +641,13 @@
         <label for="question">Question or task</label>
         <textarea id="question" placeholder="Example: Summarize the difference between Microsoft 365 Copilot and Copilot Chat"></textarea>
 
+        <label for="submit-mode">What should the shared link do?</label>
+        <select id="submit-mode">
+          <option value="auto" selected>Animate, then automatically submit to Bing</option>
+          <option value="manual">Animate and stop on this coaching page</option>
+        </select>
+        <p class="helper" id="submit-mode-note">Best for sharing: the recipient sees the animation, then lands on Bing with the rewritten prompt searched.</p>
+
         <div class="row">
           <div>
             <label for="destination">Destination</label>
@@ -655,14 +668,8 @@
           </div>
         </div>
 
-        <label for="submit-mode">Recipient experience</label>
-        <select id="submit-mode">
-          <option value="manual">Stop here; let them click submit</option>
-          <option value="auto">Auto-submit to Bing after the animation</option>
-        </select>
-
         <div class="actions">
-          <button class="btn primary" type="submit">Generate link</button>
+          <button class="btn primary" type="submit">Generate share link</button>
           <button class="btn" id="demo" type="button">Preview demo</button>
         </div>
 
@@ -816,6 +823,16 @@
       $("#why-constraints").textContent = "Adds practical tone and format guidance that works across modern AI assistants and AI search.";
     }
 
+    function updateSubmitModeUi() {
+      const auto = $("#submit-mode").value === "auto";
+      $("#submit-mode-note").textContent = auto
+        ? "Best for sharing: the recipient sees the animation, then lands on Bing with the rewritten prompt searched."
+        : "Teaching mode: the recipient sees the animation and coaching, then chooses when to submit.";
+      if (auto) {
+        $("#destination").value = "bing";
+      }
+    }
+
     function clearTimers() {
       state.timerIds.forEach((id) => clearTimeout(id));
       state.timerIds = [];
@@ -832,8 +849,11 @@
 
     function setCursor(x, y, visible = true) {
       const cursor = $("#cursor");
+      const tipOffsetX = 4;
+      const tipOffsetY = 2;
       cursor.style.opacity = visible ? "1" : "0";
-      cursor.style.transform = `translate(${x}px, ${y}px)`;
+      cursor.style.left = `${Math.max(0, x - tipOffsetX)}px`;
+      cursor.style.top = `${Math.max(0, y - tipOffsetY)}px`;
     }
 
     function cursorPointFor(element, xRatio = 0.5, yRatio = 0.5) {
@@ -901,7 +921,7 @@
       const actionName = state.destination === "bing" ? "Search" : "Ask";
 
       setInstruction(`Step 2: Click ${actionName}.`);
-      moveCursorToElement(askButton, 0.45, 0.45);
+      moveCursorToElement(askButton, 0.5, 0.5);
       wait(950, () => {
         askButton.focus();
         askButton.classList.add("pulse");
@@ -938,9 +958,9 @@
       setInstruction(destination === "bing"
         ? "Step 1: Put the improved prompt into Bing search."
         : "Step 1: Put the question where the helpful assistant can see it.");
-      moveCursorToElement($(".prompt-box"), 0.08, 0.55);
+      moveCursorToElement($(".prompt-box"), 0.06, 0.42);
       wait(500, () => {
-        moveCursorToElement($("#typed"), 0.08, 0.32);
+        moveCursorToElement($("#typed"), 0.02, 0.12);
         wait(850, () => {
           typeText(enhancedPrompt(state.question, tone));
         });
@@ -968,9 +988,7 @@
     });
 
     $("#submit-mode").addEventListener("change", () => {
-      if ($("#submit-mode").value === "auto") {
-        $("#destination").value = "bing";
-      }
+      updateSubmitModeUi();
     });
 
     $("#copy-link").addEventListener("click", async () => {
@@ -1018,7 +1036,7 @@
 
       clearTimers();
       setInstruction(`Step 3: Submit the rewritten prompt to ${destination.label}.`);
-      moveCursorToElement(button, 0.45, 0.45);
+      moveCursorToElement(button, 0.5, 0.5);
       button.classList.add("pulse");
       button.textContent = destination.prefill ? "Submitting..." : "Copying prompt...";
 
@@ -1042,7 +1060,7 @@
           button.textContent = destination.prefill
             ? `Submit to ${destination.label}`
             : `Copy prompt + open ${destination.label}`;
-          moveCursorToElement(button, 0.45, 0.45);
+          moveCursorToElement(button, 0.5, 0.5);
         });
       });
     }
@@ -1056,11 +1074,13 @@
     });
 
     const params = getParams();
+    updateSubmitModeUi();
     if (params.q) {
       $("#question").value = params.q;
       $("#destination").value = params.destination;
       $("#tone").value = params.tone;
       $("#submit-mode").value = params.submitMode;
+      updateSubmitModeUi();
       play(params.q, params.destination, params.tone, params.submitMode);
     } else {
       play("How do I write a better prompt for Microsoft Copilot?", "bing", "kind", "manual");
