@@ -696,25 +696,14 @@
         </div>
         <p class="helper" id="submit-mode-note">Best for sharing: the recipient sees the animation, then Bing opens in a new tab with the rewritten prompt searched.</p>
 
-        <div class="row">
-          <div>
-            <label for="destination">Destination</label>
-            <select id="destination">
-              <option value="bing">Bing search</option>
-              <option value="copilot">Copilot</option>
-              <option value="learn">Microsoft Learn</option>
-              <option value="work">Microsoft 365</option>
-            </select>
-          </div>
-          <div>
-            <label for="tone">Tone</label>
-            <select id="tone">
-              <option value="kind">Kind nudge</option>
-              <option value="playful">Playful nudge</option>
-              <option value="coach">Prompt coach</option>
-            </select>
-          </div>
-        </div>
+        <label for="destination">Manual submit destination</label>
+        <select id="destination">
+          <option value="bing">Bing search</option>
+          <option value="copilot">Copilot</option>
+          <option value="learn">Microsoft Learn</option>
+          <option value="work">Microsoft 365</option>
+        </select>
+        <p class="helper">Auto-submit always uses Bing. This destination only applies when you choose to stop on the coaching page.</p>
 
         <div class="actions">
           <button class="btn primary" type="submit">Generate share link</button>
@@ -806,18 +795,17 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.8.2</span></span>
+      <span>Version <span id="version">v0.8.3</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.8.2";
+    const SITE_VERSION = "v0.8.3";
 
     const state = {
       question: "",
       destination: "bing",
-      tone: "kind",
       submitMode: "auto",
       timerIds: []
     };
@@ -847,12 +835,6 @@
         prefill: true,
         buildUrl: (query) => `https://www.microsoft365.com/search/results/all/${encodeURIComponent(query)}`
       }
-    };
-
-    const toneLines = {
-      kind: "Tiny nudge: searching first is usually faster than asking the group chat.",
-      playful: "A friendly experiment: what if we asked the internet before starting a thread?",
-      coach: "Prompt upgrade complete: context + outcome + constraints. Chef's kiss."
     };
 
     function classifyRequest(question) {
@@ -924,20 +906,10 @@
       };
     }
 
-    function enhancedPrompt(question, tone) {
+    function enhancedPrompt(question) {
       const trimmed = question.trim();
       const intent = classifyRequest(trimmed);
-      const toneGuidance = {
-        kind: "Keep the tone clear, helpful, and professional.",
-        playful: "Keep the tone friendly, lightly playful, and still useful.",
-        coach: "Also explain how you interpreted the request and what assumptions you made."
-      }[tone] || "Keep the tone clear, helpful, and professional.";
-
-      if (tone === "coach") {
-        return `Use an AI-generated answer to help with this ${intent.type} request:\n\n"${trimmed}"\n\nGoal: Produce ${intent.outcome}.\n\nPlease structure the answer this way:\n1. Start with the direct answer in plain language.\n2. State the key context or assumptions that matter.\n3. ${intent.format}\n4. Explain the reasoning briefly.\n5. End with practical next steps or a recommendation.\n6. Add a short note explaining how this prompt was improved.\n\nGuidance: ${intent.lens} ${toneGuidance}`;
-      }
-
-      return `Use an AI-generated answer to respond to this ${intent.type} request:\n\n"${trimmed}"\n\nGoal: Produce ${intent.outcome}.\n\nPlease provide:\n1. A direct answer in plain language.\n2. The most important context or assumptions.\n3. ${intent.format}\n4. Key points organized clearly.\n5. A practical recommendation or next step.\n\nGuidance: ${intent.lens} ${toneGuidance}`;
+      return `Use an AI-generated answer to respond to this ${intent.type} request:\n\n"${trimmed}"\n\nGoal: Produce ${intent.outcome}.\n\nPlease provide:\n1. A direct answer in plain language.\n2. The most important context or assumptions.\n3. ${intent.format}\n4. Key points organized clearly.\n5. A practical recommendation or next step.\n\nGuidance: ${intent.lens} Keep the answer clear, helpful, and professional.`;
     }
 
     function updateCoaching(prompt) {
@@ -1012,18 +984,15 @@
       const params = new URLSearchParams(window.location.search);
       const q = params.get("q") || "";
       const destination = destinations[params.get("to")] ? params.get("to") : "bing";
-      const requestedTone = params.get("tone") === "spicy" ? "playful" : params.get("tone");
-      const tone = toneLines[requestedTone] ? requestedTone : "kind";
       const submitMode = params.get("submit") === "auto" ? "auto" : "manual";
-      return { q, destination: submitMode === "auto" ? "bing" : destination, tone, submitMode };
+      return { q, destination: submitMode === "auto" ? "bing" : destination, submitMode };
     }
 
-    function makeShareUrl(question, destination, tone, submitMode) {
+    function makeShareUrl(question, destination, submitMode) {
       const url = new URL(window.location.href);
       url.search = "";
       url.searchParams.set("q", question);
       url.searchParams.set("to", destination);
-      url.searchParams.set("tone", tone);
       url.searchParams.set("submit", submitMode);
       return url.toString();
     }
@@ -1063,10 +1032,10 @@
       wait(950, () => {
         askButton.focus();
         askButton.classList.add("pulse");
-        setInstruction(toneLines[state.tone]);
+        setInstruction("Prompt rewritten using AI-search best practices.");
         $("#result-panel").classList.add("show");
-        $("#punchline").textContent = toneLines[state.tone];
-        updateCoaching(enhancedPrompt(state.question, state.tone));
+        $("#punchline").textContent = "Look at that. A casual ask became a stronger AI-search prompt.";
+        updateCoaching(enhancedPrompt(state.question));
         $("#launch").textContent = "Submit to Bing search";
         if (state.submitMode === "auto") {
           setInstruction("Auto-submit is on. Opening Bing after the click animation...");
@@ -1080,11 +1049,10 @@
       });
     }
 
-    function play(question, destination = "bing", tone = "kind", submitMode = "manual") {
+    function play(question, destination = "bing", submitMode = "manual") {
       clearTimers();
       state.question = question.trim() || "How do I write a better Copilot prompt?";
       state.destination = destination;
-      state.tone = tone;
       state.submitMode = submitMode;
       $("#typed").textContent = "";
       $("#result-panel").classList.remove("show");
@@ -1098,7 +1066,7 @@
       wait(500, () => {
         moveCursorToElement($("#typed"), 0.02, 0.12);
         wait(850, () => {
-          typeText(enhancedPrompt(state.question, tone));
+          typeText(enhancedPrompt(state.question));
         });
       });
     }
@@ -1108,19 +1076,18 @@
       const question = $("#question").value.trim() || "How do I use Microsoft Copilot?";
       const submitMode = getSubmitMode();
       const destination = submitMode === "auto" ? "bing" : $("#destination").value;
-      const tone = $("#tone").value;
-      const shareUrl = makeShareUrl(question, destination, tone, submitMode);
+      const shareUrl = makeShareUrl(question, destination, submitMode);
       $("#share-url").value = shareUrl;
       $("#open-link").href = shareUrl;
       $("#output").classList.add("show");
-      play(question, destination, tone, submitMode);
+      play(question, destination, submitMode);
     });
 
     $("#demo").addEventListener("click", () => {
       const question = $("#question").value.trim() || "What is the fastest way to learn Microsoft Copilot prompts?";
       const submitMode = getSubmitMode();
       const destination = submitMode === "auto" ? "bing" : $("#destination").value;
-      play(question, destination, $("#tone").value, submitMode);
+      play(question, destination, submitMode);
     });
 
     document.querySelectorAll('input[name="submit-mode"]').forEach((input) => input.addEventListener("change", () => {
@@ -1162,7 +1129,7 @@
     });
 
     $("#copy-prompt").addEventListener("click", async () => {
-      await copyText(enhancedPrompt(state.question, state.tone));
+      await copyText(enhancedPrompt(state.question));
       $("#copy-prompt").textContent = "Prompt copied";
       wait(1200, () => {
         $("#copy-prompt").textContent = "Copy improved prompt";
@@ -1171,7 +1138,7 @@
 
     function submitToDestination({ auto = false } = {}) {
       const destination = destinations.bing;
-      const prompt = enhancedPrompt(state.question, state.tone);
+      const prompt = enhancedPrompt(state.question);
       const button = $("#launch");
 
       clearTimers();
@@ -1204,7 +1171,7 @@
     });
 
     $("#replay").addEventListener("click", () => {
-      play(state.question, state.destination, state.tone, state.submitMode);
+      play(state.question, state.destination, state.submitMode);
     });
 
     const params = getParams();
@@ -1213,14 +1180,13 @@
     if (params.q) {
       $("#question").value = params.q;
       $("#destination").value = params.destination;
-      $("#tone").value = params.tone;
       setSubmitMode(params.submitMode);
       updateSubmitModeUi();
-      play(params.q, params.destination, params.tone, params.submitMode);
+      play(params.q, params.destination, params.submitMode);
     } else {
       setSubmitMode("auto");
       updateSubmitModeUi();
-      play("How do I write a better prompt for Microsoft Copilot?", "bing", "kind", "manual");
+      play("How do I write a better prompt for Microsoft Copilot?", "bing", "manual");
     }
   </script>
 </body>

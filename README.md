@@ -15,7 +15,7 @@ Research summary from the current public site and search snippets:
 
 ## What this version adds
 
-- A kinder, workplace-safe tone.
+- A kinder, workplace-safe voice.
 - Copilot-style prompt coaching: context, outcome, and constraints.
 - Bing search is the default destination because it supports reliable query URLs for public sharing.
 - Optional destinations include Copilot, Microsoft Learn, and Microsoft 365 search.
@@ -25,7 +25,7 @@ Research summary from the current public site and search snippets:
 - Link creators can choose the recipient experience: stop on the coaching page, or auto-submit to Bing after the animation.
 - Submit actions always open Bing search in a new tab with the rewritten prompt. If a browser blocks the new tab, the page stays visible and asks the recipient to click submit.
 - Rewritten prompts dynamically classify the original ask (compare, draft, plan, troubleshoot, summarize, research, code, explain, or general) and reconstruct it into a structured AI-ready request.
-- Dynamic rewrites include a direct answer request, context/assumptions, intent-specific output format, key points, practical recommendation, and tone guidance.
+- Dynamic rewrites include a direct answer request, context/assumptions, intent-specific output format, key points, and a practical recommendation.
 - Rewritten prompts also include AI-answer cues such as "AI-generated answer," "plain language," "key points," and "next step" to increase the chance of an AI-style search response.
 - Bing ultimately controls whether an AI answer appears; account, region, query, and feature rollout can still affect the result.
 - No analytics, no third-party scripts, no backend, and no stored user data.
@@ -42,14 +42,13 @@ Research summary from the current public site and search snippets:
 ## URL format
 
 ```text
-/?q=How%20do%20I%20use%20Copilot&to=bing&tone=kind
+/?q=How%20do%20I%20use%20Copilot&to=bing&submit=auto
 ```
 
 Parameters:
 
 - `q`: the question or task to animate.
 - `to`: `copilot`, `bing`, `learn`, or `work`.
-- `tone`: `kind`, `playful`, or `coach`.
 - `submit`: `manual` or `auto`. Auto mode forces the destination to Bing and submits after the animation.
 
 ## Version display
@@ -57,7 +56,7 @@ Parameters:
 The footer displays the current site version, for example:
 
 ```text
-Version v0.8.2
+Version v0.8.3
 ```
 
 After each publish, verify the visible footer version to make sure the browser is not showing a cached copy.
