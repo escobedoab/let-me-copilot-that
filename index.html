@@ -809,13 +809,13 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.9.3</span></span>
+      <span>Version <span id="version">v0.9.4</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.9.3";
+    const SITE_VERSION = "v0.9.4";
 
     const state = {
       question: "",
@@ -855,6 +855,13 @@
     function classifyRequest(question) {
       const text = question.toLowerCase();
       const checks = [
+        {
+          type: "presentation prep",
+          test: /\b(presentation|presentations|present|public speaking|speech|slides|rehearse|practice|remember|memorize)\b/,
+          outcome: "a practical presentation practice and memory plan",
+          format: "Include rehearsal methods, memory techniques, delivery practice, timing, and day-of confidence tips.",
+          lens: "Focus on methods that help someone remember the message without sounding scripted."
+        },
         {
           type: "compare",
           test: /\b(compare|difference|versus|vs\.?|which is better|pros and cons)\b/,
@@ -921,14 +928,79 @@
       };
     }
 
-    function enhancedPrompt(question) {
+    function clarificationQuestions(intent) {
+      const byType = {
+        "presentation prep": [
+          "What kind of presentation is this: executive update, sales pitch, training, demo, or keynote?",
+          "How long is the presentation, and how much of it needs to be memorized?",
+          "What parts feel hardest to remember or deliver naturally?"
+        ],
+        compare: [
+          "What criteria matter most for the comparison?",
+          "Is there a budget, timeline, audience, or risk tolerance to consider?",
+          "Do you need a recommendation or just neutral tradeoffs?"
+        ],
+        draft: [
+          "Who is the audience?",
+          "What tone should the draft use?",
+          "What outcome should the message drive?"
+        ],
+        plan: [
+          "What deadline or time horizon matters?",
+          "What resources or constraints should be considered?",
+          "What does success look like?"
+        ],
+        troubleshoot: [
+          "What changed right before the problem started?",
+          "What error messages or symptoms are visible?",
+          "What have you already tried?"
+        ],
+        summarize: [
+          "Who is the summary for?",
+          "How short should it be?",
+          "Should it focus on decisions, risks, actions, or all of the above?"
+        ],
+        research: [
+          "How current does the information need to be?",
+          "Do you need sources, examples, or a recommendation?",
+          "Are there geographies, industries, or products to include?"
+        ],
+        code: [
+          "What language, framework, or environment should be used?",
+          "Is this for learning, debugging, or production use?",
+          "What constraints or edge cases matter?"
+        ],
+        explain: [
+          "Who is the explanation for?",
+          "Should the answer be beginner-friendly or technical?",
+          "Would examples, analogies, or a step-by-step breakdown help most?"
+        ],
+        general: [
+          "Who is the answer for?",
+          "What level of detail would be most helpful?",
+          "Should the answer include examples, tradeoffs, or a recommendation?"
+        ]
+      };
+
+      return byType[intent.type] || byType.general;
+    }
+
+    function finalPrompt(question) {
       const trimmed = question.trim();
       const intent = classifyRequest(trimmed);
-      return `Please help improve this ${intent.type} request:\n\n"${trimmed}"\n\nUse the request above to create a clearer, more useful prompt. Please structure the response like this:\n\n1. Intent: Explain what the person is really trying to accomplish.\n2. Context needed: Identify the context, constraints, audience, or assumptions that would make the answer better.\n3. Desired output: Describe the best response format for this request. ${intent.format}\n4. Clarifying questions: Ask the most important questions that would improve the prompt if more detail is needed.\n5. Rewritten prompt: Using sections 1-4, recreate the original request as a clearer prompt someone could copy and use.\n6. Result: Use the rewritten prompt from section 5 to answer the request as well as possible with the information available.\n\nGuidance: ${intent.lens} Keep the rewritten prompt and final result clear, specific, and professional.`;
+      const questions = clarificationQuestions(intent);
+      return `I need help with this ${intent.type} request:\n\n"${trimmed}"\n\nPlease answer in a way that produces ${intent.outcome}.\n\nInclude:\n- A direct answer in plain language.\n- The most important context or assumptions.\n- ${intent.format}\n- Key points organized clearly.\n- If more detail would improve the answer, ask these clarifying questions first: ${questions.join(" ")}\n\nGuidance: ${intent.lens} Keep the response clear, specific, and professional.`;
+    }
+
+    function coachingDisplay(question) {
+      const trimmed = question.trim();
+      const intent = classifyRequest(trimmed);
+      const questions = clarificationQuestions(intent).map((question) => `- ${question}`).join("\n");
+      return `1. Intent\nThe person is trying to get ${intent.outcome}.\n\n2. Context needed\nThe answer would improve with details about audience, constraints, timeline, current state, and what success looks like.\n\n3. Desired output\n${intent.format}\n\n4. Clarifying questions\n${questions}\n\n5. Rewritten prompt\n${finalPrompt(trimmed)}`;
     }
 
     function promptForCurrentStyle() {
-      return state.style === "exact" ? state.question : enhancedPrompt(state.question);
+      return state.style === "exact" ? state.question : finalPrompt(state.question);
     }
 
     function escapeHtml(value) {
@@ -942,7 +1014,8 @@
 
     function rewriteFrame(partialQuestion) {
       const intent = classifyRequest(state.question || partialQuestion);
-      return `Please help improve this ${intent.type} request:\n\n"<span class="typing-focus">${escapeHtml(partialQuestion)}</span>"\n\nUse the request above to create a clearer, more useful prompt. Please structure the response like this:\n\n1. Intent: Explain what the person is really trying to accomplish.\n2. Context needed: Identify the context, constraints, audience, or assumptions that would make the answer better.\n3. Desired output: Describe the best response format for this request. ${escapeHtml(intent.format)}\n4. Clarifying questions: Ask the most important questions that would improve the prompt if more detail is needed.\n5. Rewritten prompt: Using sections 1-4, recreate the original request as a clearer prompt someone could copy and use.\n\nGuidance: ${escapeHtml(intent.lens)} Keep the rewritten prompt clear, specific, and professional.`;
+      const questions = clarificationQuestions(intent).map((question) => `- ${escapeHtml(question)}`).join("\n");
+      return `1. Intent\nThe person is trying to get ${escapeHtml(intent.outcome)}.\n\n2. Context needed\nThe answer would improve with details about audience, constraints, timeline, current state, and what success looks like.\n\n3. Desired output\n${escapeHtml(intent.format)}\n\n4. Clarifying questions\n${questions}\n\n5. Rewritten prompt\nI need help with this ${escapeHtml(intent.type)} request:\n\n"<span class="typing-focus">${escapeHtml(partialQuestion)}</span>"\n\nPlease answer in a way that produces ${escapeHtml(intent.outcome)}.\n\nInclude:\n- A direct answer in plain language.\n- The most important context or assumptions.\n- ${escapeHtml(intent.format)}\n- Key points organized clearly.\n- If more detail would improve the answer, ask the clarifying questions above first.\n\nGuidance: ${escapeHtml(intent.lens)} Keep the response clear, specific, and professional.`;
     }
 
     function renderTypedPrompt(partialQuestion) {
@@ -957,7 +1030,7 @@
 
     function updateCoaching(prompt) {
       const intent = classifyRequest(state.question);
-      $("#prompt-preview").textContent = prompt;
+      $("#prompt-preview").textContent = state.style === "exact" ? prompt : coachingDisplay(state.question);
       if (state.style === "exact") {
         $("#why-intent").textContent = "No rewrite selected. The original prompt is preserved exactly as typed.";
         $("#why-ai").textContent = "Nothing was changed. This mode is for the classic fun-link experience: animate the ask, then search it.";
@@ -969,7 +1042,7 @@
       $("#why-intent").textContent = `Detected this as a ${intent.type} request and reframed it around the desired outcome.`;
       $("#why-ai").textContent = "Turns the ask into a complete prompt with goal, structure, assumptions, and guidance.";
       $("#why-structure").textContent = `Uses sections 1-3 to clarify intent, context, and desired output before rewriting the prompt.`;
-      $("#why-constraints").textContent = `After the rewritten prompt, section 6 asks AI Search to use that prompt and produce the best available answer.`;
+      $("#why-constraints").textContent = `Bing receives only section 5, the final rewritten prompt, so the search stays focused on answering the request.`;
     }
 
     function updateSubmitModeUi() {
