@@ -806,14 +806,13 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.8.0 · 1a6a4f1</span></span>
+      <span>Version <span id="version">v0.8.1</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.8.0";
-    const BUILD_SHA = "1a6a4f1";
+    const SITE_VERSION = "v0.8.1";
 
     const state = {
       question: "",
@@ -1129,7 +1128,7 @@
     }));
 
     function updateVersionDisplay() {
-      $("#version").textContent = `${SITE_VERSION} · ${BUILD_SHA}`;
+      $("#version").textContent = SITE_VERSION;
     }
 
     $("#copy-link").addEventListener("click", async () => {

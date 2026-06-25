@@ -54,10 +54,10 @@ Parameters:
 
 ## Version display
 
-The footer displays the current site version and build SHA, for example:
+The footer displays the current site version, for example:
 
 ```text
-Version v0.8.0 · 1a6a4f1
+Version v0.8.1
 ```
 
 After each publish, verify the visible footer version to make sure the browser is not showing a cached copy.
