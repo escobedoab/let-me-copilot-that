@@ -418,6 +418,11 @@
       white-space: pre-wrap;
     }
 
+    .typing-focus {
+      color: var(--cp-accent);
+      font-weight: 700;
+    }
+
     .caret::after {
       content: "";
       display: inline-block;
@@ -686,9 +691,9 @@
 
         <label for="style">Delivery style</label>
         <select id="style">
+          <option value="exact" selected>Exact prompt, no rewrite</option>
           <option value="helpful">Helpful coach</option>
           <option value="spicy">Spicy, but useful</option>
-          <option value="exact">Exact prompt, no rewrite</option>
         </select>
         <p class="helper">Choose whether to improve the prompt or send the original exactly as typed.</p>
 
@@ -804,18 +809,18 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.9.0</span></span>
+      <span>Version <span id="version">v0.9.1</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.9.0";
+    const SITE_VERSION = "v0.9.1";
 
     const state = {
       question: "",
       destination: "bing",
-      style: "helpful",
+      style: "exact",
       submitMode: "manual",
       timerIds: []
     };
@@ -926,12 +931,36 @@
       return state.style === "exact" ? state.question : enhancedPrompt(state.question);
     }
 
+    function escapeHtml(value) {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function rewriteFrame(partialQuestion) {
+      const intent = classifyRequest(state.question || partialQuestion);
+      return `Please help improve this ${intent.type} request:\n\n"<span class="typing-focus">${escapeHtml(partialQuestion)}</span>"\n\nUse the request above to create a clearer, more useful prompt. Please structure the response like this:\n\n1. Intent: Explain what the person is really trying to accomplish.\n2. Context needed: Identify the context, constraints, audience, or assumptions that would make the answer better.\n3. Desired output: Describe the best response format for this request. ${escapeHtml(intent.format)}\n4. Clarifying questions: Ask the most important questions that would improve the prompt if more detail is needed.\n5. Rewritten prompt: Using sections 1-4, recreate the original request as a clearer prompt someone could copy and use.\n\nGuidance: ${escapeHtml(intent.lens)} Keep the rewritten prompt clear, specific, and professional.`;
+    }
+
+    function renderTypedPrompt(partialQuestion) {
+      const typed = $("#typed");
+      if (state.style === "exact") {
+        typed.textContent = partialQuestion;
+        return;
+      }
+
+      typed.innerHTML = rewriteFrame(partialQuestion);
+    }
+
     function updateCoaching(prompt) {
       const intent = classifyRequest(state.question);
       $("#prompt-preview").textContent = prompt;
       if (state.style === "exact") {
         $("#why-intent").textContent = "No rewrite selected. The original prompt is preserved exactly as typed.";
-        $("#why-ai").textContent = "This mode is for the classic fun-link experience: animate the ask, then search it.";
+        $("#why-ai").textContent = "Nothing was changed. This mode is for the classic fun-link experience: animate the ask, then search it.";
         $("#why-structure").textContent = "No structure was added, so the recipient sees the original wording.";
         $("#why-constraints").textContent = "Use this when the goal is the playful search nudge, not prompt coaching.";
         return;
@@ -1007,7 +1036,7 @@
       const q = params.get("q") || "";
       const destination = destinations[params.get("to")] ? params.get("to") : "bing";
       const submitMode = params.get("submit") === "auto" ? "auto" : "manual";
-      const style = ["spicy", "exact"].includes(params.get("style")) ? params.get("style") : "helpful";
+      const style = ["helpful", "spicy"].includes(params.get("style")) ? params.get("style") : "exact";
       return { q, destination: submitMode === "auto" ? "bing" : destination, submitMode, style };
     }
 
@@ -1039,7 +1068,7 @@
     }
 
     function typeText(text, index = 0) {
-      $("#typed").textContent = text.slice(0, index);
+      renderTypedPrompt(text.slice(0, index));
       if (index <= text.length) {
         wait(7 + Math.random() * 14, () => typeText(text, index + 1));
       } else {
@@ -1084,19 +1113,19 @@
       state.destination = destination;
       state.submitMode = submitMode;
       state.style = style;
-      $("#typed").textContent = "";
+      renderTypedPrompt("");
       $("#result-panel").classList.remove("show");
       $("#address").textContent = destinations[destination].address;
       $("#service-name").textContent = destinations[destination].label;
       $("#ask-button").textContent = destination === "bing" ? "Search" : "Ask";
       setInstruction(destination === "bing"
-        ? "Step 1: Put the improved prompt into Bing search."
+        ? (style === "exact" ? "Step 1: Put the original prompt into Bing AI Search." : "Step 1: Put the improved prompt into Bing AI Search.")
         : "Step 1: Put the question where the helpful assistant can see it.");
       moveCursorToElement($(".prompt-box"), 0.06, 0.42);
       wait(500, () => {
         moveCursorToElement($("#typed"), 0.02, 0.12);
         wait(850, () => {
-          typeText(promptForCurrentStyle());
+          typeText(state.question);
         });
       });
     }
@@ -1218,7 +1247,7 @@
     } else {
       setSubmitMode("manual");
       updateSubmitModeUi();
-      play("How do I write a better prompt for Microsoft Copilot?", "bing", "manual", "helpful");
+      play("How do I write a better prompt for Microsoft Copilot?", "bing", "manual", "exact");
     }
   </script>
 </body>
