@@ -802,13 +802,13 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.8.7</span></span>
+      <span>Version <span id="version">v0.8.8</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.8.7";
+    const SITE_VERSION = "v0.8.8";
 
     const state = {
       question: "",
@@ -917,7 +917,7 @@
     function enhancedPrompt(question) {
       const trimmed = question.trim();
       const intent = classifyRequest(trimmed);
-      return `Please help with this ${intent.type} request:\n\n"${trimmed}"\n\nGoal: Produce ${intent.outcome}.\n\nPlease provide:\n1. A direct answer in plain language.\n2. The most important context or assumptions.\n3. ${intent.format}\n4. Key points organized clearly.\n5. Clarifying questions that would help improve the answer if more detail is needed.\n\nGuidance: ${intent.lens} Keep the answer clear, helpful, and professional.`;
+      return `Please help improve this ${intent.type} request:\n\n"${trimmed}"\n\nUse the request above to create a clearer, more useful prompt. Please structure the response like this:\n\n1. Intent: Explain what the person is really trying to accomplish.\n2. Context needed: Identify the context, constraints, audience, or assumptions that would make the answer better.\n3. Desired output: Describe the best response format for this request. ${intent.format}\n4. Rewritten prompt: Using sections 1-3, recreate the original request as a clearer prompt someone could copy and use.\n5. Clarifying questions: Ask the most important questions that would improve the prompt if more detail is needed.\n\nGuidance: ${intent.lens} Keep the rewritten prompt clear, specific, and professional.`;
     }
 
     function updateCoaching(prompt) {
@@ -925,8 +925,8 @@
       $("#prompt-preview").textContent = prompt;
       $("#why-intent").textContent = `Detected this as a ${intent.type} request and reframed it around the desired outcome.`;
       $("#why-ai").textContent = "Turns the ask into a complete prompt with goal, structure, assumptions, and guidance.";
-      $("#why-structure").textContent = `Uses a response format that fits the ask: ${intent.format}`;
-      $("#why-constraints").textContent = `Asks clarifying questions when more detail would improve the answer: ${intent.lens}`;
+      $("#why-structure").textContent = `Uses sections 1-3 to clarify intent, context, and desired output before rewriting the prompt.`;
+      $("#why-constraints").textContent = `Section 4 recreates the prompt, then section 5 asks clarifying questions if more detail is needed.`;
     }
 
     function updateSubmitModeUi() {
