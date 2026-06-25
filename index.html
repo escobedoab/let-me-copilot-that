@@ -205,6 +205,48 @@
       line-height: 1.4;
     }
 
+    .radio-group {
+      display: grid;
+      gap: 10px;
+    }
+
+    .radio-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+      margin: 0;
+      padding: 12px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-bg-elevated);
+      cursor: pointer;
+    }
+
+    .radio-card:has(input:checked) {
+      border-color: var(--cp-accent);
+      background: var(--cp-accent-soft);
+      box-shadow: 0 0 0 3px var(--cp-accent-soft);
+    }
+
+    .radio-card input {
+      margin-top: 4px;
+      accent-color: var(--cp-accent);
+    }
+
+    .radio-card strong {
+      display: block;
+      color: var(--cp-text);
+      margin-bottom: 3px;
+    }
+
+    .radio-card span {
+      display: block;
+      color: var(--cp-text-muted);
+      font-size: 0.9rem;
+      line-height: 1.35;
+    }
+
     .row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -641,12 +683,18 @@
         <label for="question">Question or task</label>
         <textarea id="question" placeholder="Example: Summarize the difference between Microsoft 365 Copilot and Copilot Chat"></textarea>
 
-        <label for="submit-mode">What should the shared link do?</label>
-        <select id="submit-mode">
-          <option value="auto" selected>Animate, then automatically submit to Bing</option>
-          <option value="manual">Animate and stop on this coaching page</option>
-        </select>
-        <p class="helper" id="submit-mode-note">Best for sharing: the recipient sees the animation, then lands on Bing with the rewritten prompt searched.</p>
+        <label>What should the shared link do?</label>
+        <div class="radio-group" id="submit-mode">
+          <label class="radio-card">
+            <input type="radio" name="submit-mode" value="auto" checked>
+            <span><strong>Auto-submit to Bing</strong>Animate the prompt rewrite, click Search, then open Bing in a new tab.</span>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="submit-mode" value="manual">
+            <span><strong>Stop on the coaching page</strong>Let them review the rewritten prompt and click submit themselves.</span>
+          </label>
+        </div>
+        <p class="helper" id="submit-mode-note">Best for sharing: the recipient sees the animation, then Bing opens in a new tab with the rewritten prompt searched.</p>
 
         <div class="row">
           <div>
@@ -767,7 +815,7 @@
       question: "",
       destination: "bing",
       tone: "kind",
-      submitMode: "manual",
+      submitMode: "auto",
       timerIds: []
     };
 
@@ -806,13 +854,17 @@
 
     function enhancedPrompt(question, tone) {
       const trimmed = question.trim();
+      const toneGuidance = {
+        kind: "Keep the tone clear, helpful, and professional.",
+        playful: "Keep the tone friendly, lightly playful, and still useful.",
+        coach: "Also explain how you interpreted the request and what assumptions you made."
+      }[tone] || "Keep the tone clear, helpful, and professional.";
+
       if (tone === "coach") {
-        return `Use an AI-generated answer to help me with this: ${trimmed}\n\nPlease synthesize the answer clearly, include assumptions, organize the key points, and give me next steps I can act on.`;
+        return `Use an AI-generated answer to help with this request:\n\n"${trimmed}"\n\nReconstruct this into the strongest possible answer. Please include:\n1. A direct answer first.\n2. The key context or assumptions that matter.\n3. A short explanation of the best reasoning.\n4. Practical next steps or recommendations.\n5. A brief note on how this prompt was interpreted.\n\n${toneGuidance}`;
       }
-      if (tone === "playful") {
-        return `Use an AI-generated answer to explain: ${trimmed}\n\nAnswer directly, keep it practical, summarize the most important points, and include what I should do next.`;
-      }
-      return `Use an AI-generated answer to explain: ${trimmed}\n\nPlease give me a concise, helpful summary, the key points, and the most useful next step.`;
+
+      return `Use an AI-generated answer to respond to this request:\n\n"${trimmed}"\n\nPlease provide:\n1. A direct answer in plain language.\n2. The most important context or assumptions.\n3. Key points organized as bullets.\n4. A practical recommendation or next step.\n\n${toneGuidance}`;
     }
 
     function updateCoaching(prompt) {
@@ -824,12 +876,24 @@
     }
 
     function updateSubmitModeUi() {
-      const auto = $("#submit-mode").value === "auto";
+      const auto = getSubmitMode() === "auto";
       $("#submit-mode-note").textContent = auto
-        ? "Best for sharing: the recipient sees the animation, then lands on Bing with the rewritten prompt searched."
+        ? "Best for sharing: the recipient sees the animation, then Bing opens in a new tab with the rewritten prompt searched."
         : "Teaching mode: the recipient sees the animation and coaching, then chooses when to submit.";
       if (auto) {
         $("#destination").value = "bing";
+      }
+    }
+
+    function getSubmitMode() {
+      return document.querySelector('input[name="submit-mode"]:checked')?.value || "auto";
+    }
+
+    function setSubmitMode(submitMode) {
+      const mode = submitMode === "manual" ? "manual" : "auto";
+      const option = document.querySelector(`input[name="submit-mode"][value="${mode}"]`);
+      if (option) {
+        option.checked = true;
       }
     }
 
@@ -932,7 +996,7 @@
         $("#launch").textContent = destinations[state.destination].prefill
           ? `Submit to ${destinations[state.destination].label}`
           : `Copy prompt + open ${destinations[state.destination].label}`;
-        if (state.submitMode === "auto" && destinations[state.destination].prefill) {
+        if (state.submitMode === "auto") {
           setInstruction("Auto-submit is on. Opening Bing after the click animation...");
           wait(1300, () => {
             submitToDestination({ auto: true });
@@ -970,7 +1034,7 @@
     $("#builder").addEventListener("submit", (event) => {
       event.preventDefault();
       const question = $("#question").value.trim() || "How do I use Microsoft Copilot?";
-      const submitMode = $("#submit-mode").value;
+      const submitMode = getSubmitMode();
       const destination = submitMode === "auto" ? "bing" : $("#destination").value;
       const tone = $("#tone").value;
       const shareUrl = makeShareUrl(question, destination, tone, submitMode);
@@ -982,14 +1046,14 @@
 
     $("#demo").addEventListener("click", () => {
       const question = $("#question").value.trim() || "What is the fastest way to learn Microsoft Copilot prompts?";
-      const submitMode = $("#submit-mode").value;
+      const submitMode = getSubmitMode();
       const destination = submitMode === "auto" ? "bing" : $("#destination").value;
       play(question, destination, $("#tone").value, submitMode);
     });
 
-    $("#submit-mode").addEventListener("change", () => {
+    document.querySelectorAll('input[name="submit-mode"]').forEach((input) => input.addEventListener("change", () => {
       updateSubmitModeUi();
-    });
+    }));
 
     $("#copy-link").addEventListener("click", async () => {
       await copyText($("#share-url").value);
@@ -1030,7 +1094,7 @@
     });
 
     function submitToDestination({ auto = false } = {}) {
-      const destination = destinations[state.destination];
+      const destination = auto ? destinations.bing : destinations[state.destination];
       const prompt = enhancedPrompt(state.question, state.tone);
       const button = $("#launch");
 
@@ -1044,10 +1108,12 @@
         if (destination.prefill) {
           button.textContent = `Opening ${destination.label}`;
           const url = destination.buildUrl(prompt);
-          if (auto) {
-            window.location.href = url;
-          } else {
-            window.open(url, "_blank", "noopener,noreferrer");
+          const opened = window.open(url, "_blank", "noopener,noreferrer");
+          if (auto && !opened) {
+            button.textContent = "Popup blocked — click to open Bing";
+            setInstruction("Your browser blocked the new tab. Click Submit to Bing to open it.");
+            button.classList.remove("pulse");
+            return;
           }
         } else {
           await copyText(prompt);
@@ -1079,10 +1145,12 @@
       $("#question").value = params.q;
       $("#destination").value = params.destination;
       $("#tone").value = params.tone;
-      $("#submit-mode").value = params.submitMode;
+      setSubmitMode(params.submitMode);
       updateSubmitModeUi();
       play(params.q, params.destination, params.tone, params.submitMode);
     } else {
+      setSubmitMode("auto");
+      updateSubmitModeUi();
       play("How do I write a better prompt for Microsoft Copilot?", "bing", "kind", "manual");
     }
   </script>
