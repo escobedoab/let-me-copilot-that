@@ -381,8 +381,8 @@
 
     .fake-cursor {
       position: absolute;
-      top: 120px;
-      left: 44px;
+      top: 0;
+      left: 0;
       width: 22px;
       height: 22px;
       pointer-events: none;
@@ -836,6 +836,20 @@
       cursor.style.transform = `translate(${x}px, ${y}px)`;
     }
 
+    function cursorPointFor(element, xRatio = 0.5, yRatio = 0.5) {
+      const elementBox = element.getBoundingClientRect();
+      const stageBox = $(".copilot").getBoundingClientRect();
+      return {
+        x: elementBox.left - stageBox.left + elementBox.width * xRatio,
+        y: elementBox.top - stageBox.top + elementBox.height * yRatio
+      };
+    }
+
+    function moveCursorToElement(element, xRatio = 0.5, yRatio = 0.5) {
+      const point = cursorPointFor(element, xRatio, yRatio);
+      setCursor(point.x, point.y);
+    }
+
     function getParams() {
       const params = new URLSearchParams(window.location.search);
       const q = params.get("q") || "";
@@ -884,12 +898,10 @@
 
     function doneTyping() {
       const askButton = $("#ask-button");
-      const buttonBox = askButton.getBoundingClientRect();
-      const stageBox = $(".copilot").getBoundingClientRect();
       const actionName = state.destination === "bing" ? "Search" : "Ask";
 
       setInstruction(`Step 2: Click ${actionName}.`);
-      setCursor(buttonBox.left - stageBox.left + 16, buttonBox.top - stageBox.top + 12);
+      moveCursorToElement(askButton, 0.45, 0.45);
       wait(950, () => {
         askButton.focus();
         askButton.classList.add("pulse");
@@ -926,9 +938,9 @@
       setInstruction(destination === "bing"
         ? "Step 1: Put the improved prompt into Bing search."
         : "Step 1: Put the question where the helpful assistant can see it.");
-      setCursor(-4, 78);
+      moveCursorToElement($(".prompt-box"), 0.08, 0.55);
       wait(500, () => {
-        setCursor(62, 106);
+        moveCursorToElement($("#typed"), 0.08, 0.32);
         wait(850, () => {
           typeText(enhancedPrompt(state.question, tone));
         });
@@ -1003,12 +1015,10 @@
       const destination = destinations[state.destination];
       const prompt = enhancedPrompt(state.question, state.tone);
       const button = $("#launch");
-      const buttonBox = button.getBoundingClientRect();
-      const stageBox = $(".copilot").getBoundingClientRect();
 
       clearTimers();
       setInstruction(`Step 3: Submit the rewritten prompt to ${destination.label}.`);
-      setCursor(buttonBox.left - stageBox.left + 16, buttonBox.top - stageBox.top + 12);
+      moveCursorToElement(button, 0.45, 0.45);
       button.classList.add("pulse");
       button.textContent = destination.prefill ? "Submitting..." : "Copying prompt...";
 
@@ -1032,7 +1042,7 @@
           button.textContent = destination.prefill
             ? `Submit to ${destination.label}`
             : `Copy prompt + open ${destination.label}`;
-          setCursor(300, 48, false);
+          moveCursorToElement(button, 0.45, 0.45);
         });
       });
     }
