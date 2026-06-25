@@ -806,13 +806,13 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.8.1</span></span>
+      <span>Version <span id="version">v0.8.2</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.8.1";
+    const SITE_VERSION = "v0.8.2";
 
     const state = {
       question: "",
@@ -833,7 +833,7 @@
         label: "Bing search",
         address: "https://www.bing.com/search",
         prefill: true,
-        buildUrl: (query) => `https://www.bing.com/search?q=${encodeURIComponent(query)}&showconv=1&sendquery=1`
+        buildUrl: (query) => `https://www.bing.com/search?q=${encodeURIComponent(query)}`
       },
       learn: {
         label: "Microsoft Learn",
