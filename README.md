@@ -26,7 +26,7 @@ Research summary from the current public site and search snippets:
 - Submit actions always open Bing AI Search in a new tab with the rewritten prompt. If a browser blocks the new tab, the page stays visible and asks the recipient to click submit.
 - Rewritten prompts dynamically classify the original ask (compare, draft, plan, troubleshoot, summarize, research, code, explain, or general), identify intent/context/output needs, and then recreate a clearer prompt.
 - Dynamic rewrites now use a five-part on-page coaching structure: intent, context needed, desired output, clarifying questions, and final rewritten prompt.
-- Bing AI Search receives only the final rewritten prompt, not the full coaching framework, so the search result stays focused on answering the request.
+- Bing AI Search receives only the final rewritten prompt, not the full coaching framework, so the search result stays focused on answering the request. The rewritten prompt asks AI Search to proceed with reasonable assumptions on the first pass, then include clarification questions for follow-up.
 - Rewritten prompts avoid awkward AI preambles and focus on making the user's original request clearer, more structured, and easier to answer.
 - Exact prompt mode skips rewriting entirely; it animates and submits the original prompt exactly as typed.
 - Exact prompt mode is the default style. Helpful and spicy modes show the rewrite scaffold immediately, then animate the original request inside it so the added structure is clear.
@@ -60,7 +60,7 @@ Parameters:
 The footer displays the current site version, for example:
 
 ```text
-Version v0.9.4
+Version v0.9.5
 ```
 
 After each publish, verify the visible footer version to make sure the browser is not showing a cached copy.
@@ -91,4 +91,5 @@ Customer-ready content posture:
 - Add a "private mode" that keeps the query in the URL hash instead of query string.
 - Add localization once the core flow is stable.
 - Add lightweight visual tests with Playwright before publishing widely.
+
 
