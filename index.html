@@ -655,6 +655,12 @@
           </div>
         </div>
 
+        <label for="submit-mode">Recipient experience</label>
+        <select id="submit-mode">
+          <option value="manual">Stop here; let them click submit</option>
+          <option value="auto">Auto-submit to Bing after the animation</option>
+        </select>
+
         <div class="actions">
           <button class="btn primary" type="submit">Generate link</button>
           <button class="btn" id="demo" type="button">Preview demo</button>
@@ -754,6 +760,7 @@
       question: "",
       destination: "bing",
       tone: "kind",
+      submitMode: "manual",
       timerIds: []
     };
 
@@ -835,15 +842,17 @@
       const destination = destinations[params.get("to")] ? params.get("to") : "bing";
       const requestedTone = params.get("tone") === "spicy" ? "playful" : params.get("tone");
       const tone = toneLines[requestedTone] ? requestedTone : "kind";
-      return { q, destination, tone };
+      const submitMode = params.get("submit") === "auto" ? "auto" : "manual";
+      return { q, destination: submitMode === "auto" ? "bing" : destination, tone, submitMode };
     }
 
-    function makeShareUrl(question, destination, tone) {
+    function makeShareUrl(question, destination, tone, submitMode) {
       const url = new URL(window.location.href);
       url.search = "";
       url.searchParams.set("q", question);
       url.searchParams.set("to", destination);
       url.searchParams.set("tone", tone);
+      url.searchParams.set("submit", submitMode);
       return url.toString();
     }
 
@@ -891,17 +900,24 @@
         $("#launch").textContent = destinations[state.destination].prefill
           ? `Submit to ${destinations[state.destination].label}`
           : `Copy prompt + open ${destinations[state.destination].label}`;
+        if (state.submitMode === "auto" && destinations[state.destination].prefill) {
+          setInstruction("Auto-submit is on. Opening Bing after the click animation...");
+          wait(1300, () => {
+            submitToDestination({ auto: true });
+          });
+        }
         wait(900, () => {
           askButton.classList.remove("pulse");
         });
       });
     }
 
-    function play(question, destination = "copilot", tone = "kind") {
+    function play(question, destination = "bing", tone = "kind", submitMode = "manual") {
       clearTimers();
       state.question = question.trim() || "How do I write a better Copilot prompt?";
       state.destination = destination;
       state.tone = tone;
+      state.submitMode = submitMode;
       $("#typed").textContent = "";
       $("#result-panel").classList.remove("show");
       $("#address").textContent = destinations[destination].address;
@@ -922,18 +938,27 @@
     $("#builder").addEventListener("submit", (event) => {
       event.preventDefault();
       const question = $("#question").value.trim() || "How do I use Microsoft Copilot?";
-      const destination = $("#destination").value;
+      const submitMode = $("#submit-mode").value;
+      const destination = submitMode === "auto" ? "bing" : $("#destination").value;
       const tone = $("#tone").value;
-      const shareUrl = makeShareUrl(question, destination, tone);
+      const shareUrl = makeShareUrl(question, destination, tone, submitMode);
       $("#share-url").value = shareUrl;
       $("#open-link").href = shareUrl;
       $("#output").classList.add("show");
-      play(question, destination, tone);
+      play(question, destination, tone, submitMode);
     });
 
     $("#demo").addEventListener("click", () => {
       const question = $("#question").value.trim() || "What is the fastest way to learn Microsoft Copilot prompts?";
-      play(question, $("#destination").value, $("#tone").value);
+      const submitMode = $("#submit-mode").value;
+      const destination = submitMode === "auto" ? "bing" : $("#destination").value;
+      play(question, destination, $("#tone").value, submitMode);
+    });
+
+    $("#submit-mode").addEventListener("change", () => {
+      if ($("#submit-mode").value === "auto") {
+        $("#destination").value = "bing";
+      }
     });
 
     $("#copy-link").addEventListener("click", async () => {
@@ -974,7 +999,7 @@
       });
     });
 
-    $("#launch").addEventListener("click", async () => {
+    function submitToDestination({ auto = false } = {}) {
       const destination = destinations[state.destination];
       const prompt = enhancedPrompt(state.question, state.tone);
       const button = $("#launch");
@@ -990,7 +1015,12 @@
       wait(900, async () => {
         if (destination.prefill) {
           button.textContent = `Opening ${destination.label}`;
-          window.open(destination.buildUrl(prompt), "_blank", "noopener,noreferrer");
+          const url = destination.buildUrl(prompt);
+          if (auto) {
+            window.location.href = url;
+          } else {
+            window.open(url, "_blank", "noopener,noreferrer");
+          }
         } else {
           await copyText(prompt);
           button.textContent = "Prompt copied — opening Copilot";
@@ -1005,6 +1035,10 @@
           setCursor(300, 48, false);
         });
       });
+    }
+
+    $("#launch").addEventListener("click", () => {
+      submitToDestination({ auto: false });
     });
 
     $("#replay").addEventListener("click", () => {
@@ -1016,9 +1050,10 @@
       $("#question").value = params.q;
       $("#destination").value = params.destination;
       $("#tone").value = params.tone;
-      play(params.q, params.destination, params.tone);
+      $("#submit-mode").value = params.submitMode;
+      play(params.q, params.destination, params.tone, params.submitMode);
     } else {
-      play("How do I write a better prompt for Microsoft Copilot?", "bing", "kind");
+      play("How do I write a better prompt for Microsoft Copilot?", "bing", "kind", "manual");
     }
   </script>
 </body>
