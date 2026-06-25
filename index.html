@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("clawpilotTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <title>Let Me Copilot That For You</title>
+  <meta name="description" content="A playful, constructive Microsoft Copilot-themed way to show someone how to ask a better question.">
+  <meta property="og:title" content="Let Me Copilot That For You">
+  <meta property="og:description" content="Type a question, generate a tiny teaching link, and let Copilot do the polite nudge.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#b11f4b">
+  <style>
+    :root {
+      color-scheme: light;
+      --cp-bg: #f7f4ef;
+      --cp-bg-elevated: #fcfbf8;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f5f5f5;
+      --cp-border: #dedede;
+      --cp-border-strong: #919191;
+      --cp-text: #242424;
+      --cp-text-muted: #5c5c5c;
+      --cp-text-soft: #6f6f6f;
+      --cp-accent: #b11f4b;
+      --cp-accent-hover: #9a1a41;
+      --cp-accent-soft: rgba(177, 31, 75, 0.08);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #16a34a;
+      --cp-danger: #dc2626;
+      --cp-warning: #f59e0b;
+      --cp-link: #0078d4;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+      --cp-overlay: rgba(255, 255, 255, 0.8);
+      --cp-panel: rgba(255, 255, 255, 0.86);
+      --cp-panel-strong: rgba(255, 255, 255, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.55);
+      --cp-highlight: rgba(177, 31, 75, 0.12);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cp-bg: #3d3b3a;
+      --cp-bg-elevated: #343231;
+      --cp-surface: #292929;
+      --cp-surface-soft: #2e2e2e;
+      --cp-border: #474747;
+      --cp-border-strong: #5f5f5f;
+      --cp-text: #dedede;
+      --cp-text-muted: #919191;
+      --cp-text-soft: #b0b0b0;
+      --cp-accent: #fd8ea1;
+      --cp-accent-hover: #fb7b91;
+      --cp-accent-soft: rgba(253, 142, 161, 0.14);
+      --cp-accent-fg: #1a1a1a;
+      --cp-success: #4ade80;
+      --cp-danger: #f87171;
+      --cp-warning: #fbbf24;
+      --cp-link: #4da6ff;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      --cp-overlay: rgba(41, 41, 41, 0.88);
+      --cp-panel: rgba(41, 41, 41, 0.72);
+      --cp-panel-strong: rgba(41, 41, 41, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.04);
+      --cp-highlight: rgba(253, 142, 161, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: var(--cp-bg);
+      color: var(--cp-text);
+      font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    a {
+      color: var(--cp-link);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: var(--cp-surface);
+      border: 1px solid var(--cp-border);
+      border-radius: 16px;
+      box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+    }
+
+    .intro {
+      padding: 32px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 18px;
+      padding: 7px 11px;
+      border: 1px solid var(--cp-border);
+      border-radius: 999px;
+      color: var(--cp-text-muted);
+      background: var(--cp-surface-soft);
+      font-size: 0.88rem;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin: 0;
+      font-size: clamp(2.4rem, 7vw, 5.8rem);
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+    }
+
+    .accent {
+      color: var(--cp-accent);
+    }
+
+    .lede {
+      max-width: 680px;
+      margin: 22px 0 0;
+      color: var(--cp-text-muted);
+      font-size: 1.12rem;
+      line-height: 1.6;
+    }
+
+    .builder {
+      padding: 24px;
+    }
+
+    .builder h2,
+    .panel h2,
+    .research h2 {
+      margin: 0 0 12px;
+      font-size: 1.15rem;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 8px;
+      color: var(--cp-text-muted);
+      font-weight: 600;
+    }
+
+    textarea,
+    input[type="text"],
+    select {
+      width: 100%;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-bg-elevated);
+      color: var(--cp-text);
+      outline: none;
+      padding: 12px 14px;
+    }
+
+    textarea {
+      min-height: 108px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    textarea:focus,
+    input[type="text"]:focus,
+    select:focus {
+      border-color: var(--cp-border-strong);
+      box-shadow: 0 0 0 4px var(--cp-accent-soft);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+      color: var(--cp-text);
+      padding: 10px 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--cp-border-strong);
+    }
+
+    .btn.primary {
+      border-color: var(--cp-accent);
+      background: var(--cp-accent);
+      color: var(--cp-accent-fg);
+      font-weight: 700;
+    }
+
+    .btn.primary:hover {
+      background: var(--cp-accent-hover);
+    }
+
+    .output {
+      display: none;
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+    }
+
+    .output.show {
+      display: block;
+    }
+
+    .output input {
+      font-family: Consolas, "Courier New", Courier, monospace;
+      font-size: 0.9rem;
+    }
+
+    .copilot-stage {
+      margin-top: 24px;
+      padding: 24px;
+    }
+
+    .browser {
+      overflow: hidden;
+      border: 1px solid var(--cp-border);
+      border-radius: 16px;
+      background: var(--cp-bg-elevated);
+    }
+
+    .chrome {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--cp-border);
+      background: var(--cp-surface-soft);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--cp-border-strong);
+    }
+
+    .address {
+      flex: 1;
+      margin-left: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--cp-border);
+      border-radius: 999px;
+      color: var(--cp-text-soft);
+      background: var(--cp-surface);
+      font-family: Consolas, "Courier New", Courier, monospace;
+      font-size: 0.84rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .copilot {
+      position: relative;
+      min-height: 370px;
+      padding: 24px;
+    }
+
+    .copilot-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+
+    .spark {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 0.625rem;
+      border: 1px solid var(--cp-border);
+      background: var(--cp-accent-soft);
+      color: var(--cp-accent);
+    }
+
+    .prompt-box {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+      border: 1px solid var(--cp-border);
+      border-radius: 16px;
+      padding: 14px;
+      background: var(--cp-surface);
+    }
+
+    .typed {
+      min-height: 72px;
+      line-height: 1.45;
+      color: var(--cp-text);
+      white-space: pre-wrap;
+    }
+
+    .caret::after {
+      content: "";
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      margin-left: 2px;
+      background: var(--cp-accent);
+      vertical-align: -0.15em;
+      animation: blink 1s steps(2, start) infinite;
+    }
+
+    .fake-cursor {
+      position: absolute;
+      top: 120px;
+      left: 44px;
+      width: 22px;
+      height: 22px;
+      pointer-events: none;
+      color: var(--cp-text);
+      filter: drop-shadow(0 2px 2px var(--cp-border));
+      transform: translate(0, 0);
+      opacity: 0;
+      transition: transform 900ms ease, opacity 180ms ease;
+    }
+
+    .fake-cursor svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      fill: currentColor;
+    }
+
+    .instruction {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--cp-accent);
+      border-radius: 0.625rem;
+      background: var(--cp-accent-soft);
+      color: var(--cp-text);
+      min-height: 48px;
+    }
+
+    .coach {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .tip {
+      padding: 12px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface);
+      color: var(--cp-text-muted);
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .tip strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--cp-text);
+    }
+
+    .result-panel {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid var(--cp-border);
+      border-radius: 16px;
+      background: var(--cp-panel-strong);
+    }
+
+    .result-panel.show {
+      display: block;
+    }
+
+    .result-panel p {
+      margin: 0 0 12px;
+      color: var(--cp-text-muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .panel,
+    .research {
+      padding: 20px;
+    }
+
+    .panel p,
+    .research p,
+    .research li {
+      color: var(--cp-text-muted);
+      line-height: 1.55;
+    }
+
+    .research {
+      margin-top: 24px;
+    }
+
+    .research-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    code {
+      font-family: Consolas, "Courier New", Courier, monospace;
+      color: var(--cp-text);
+      background: var(--cp-surface-soft);
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      padding: 1px 5px;
+    }
+
+    footer {
+      margin-top: 26px;
+      color: var(--cp-text-soft);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .hero,
+      .grid,
+      .research-grid,
+      .coach {
+        grid-template-columns: 1fr;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .intro,
+      .builder,
+      .copilot-stage {
+        padding: 20px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="intro card">
+        <p class="pill">Unofficial parody helper • no tracking • no Microsoft logos</p>
+        <h1>Let me <span class="accent">Copilot</span> that for you.</h1>
+        <p class="lede">For the teammate who asked a perfectly searchable question, but deserves a cheerful nudge instead of a snark missile. Type the question, generate a link, and share a tiny animated lesson in asking Copilot well.</p>
+      </div>
+
+      <form class="builder card" id="builder">
+        <h2>Create a teaching link</h2>
+        <label for="question">Question or task</label>
+        <textarea id="question" placeholder="Example: Summarize the difference between Microsoft 365 Copilot and Copilot Chat"></textarea>
+
+        <div class="row">
+          <div>
+            <label for="destination">Destination</label>
+            <select id="destination">
+              <option value="copilot">Copilot</option>
+              <option value="bing">Bing search</option>
+              <option value="learn">Microsoft Learn</option>
+              <option value="work">Microsoft 365</option>
+            </select>
+          </div>
+          <div>
+            <label for="tone">Tone</label>
+            <select id="tone">
+              <option value="kind">Kind nudge</option>
+              <option value="spicy">Lightly spicy</option>
+              <option value="coach">Prompt coach</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" type="submit">Generate link</button>
+          <button class="btn" id="demo" type="button">Preview demo</button>
+        </div>
+
+        <div class="output" id="output">
+          <label for="share-url">Share URL</label>
+          <input id="share-url" type="text" readonly>
+          <div class="actions">
+            <button class="btn primary" id="copy-link" type="button">Copy link</button>
+            <a class="btn" id="open-link" href="#">Open preview</a>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <section class="copilot-stage card" aria-live="polite">
+      <div class="browser">
+        <div class="chrome">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="address" id="address">https://copilot.microsoft.com/</span>
+        </div>
+        <div class="copilot">
+          <div class="copilot-logo"><span class="spark">✦</span> Copilot</div>
+          <div class="prompt-box">
+            <div class="typed caret" id="typed"></div>
+            <button class="btn primary" id="ask-button" type="button">Ask</button>
+          </div>
+          <div class="instruction" id="instruction">Step 1: Ask a clear question.</div>
+          <div class="fake-cursor" id="cursor" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 2l15 14-7 1.2L8.2 23 4 2z"></path></svg>
+          </div>
+          <div class="coach">
+            <div class="tip"><strong>Context</strong>Tell Copilot what you are working on.</div>
+            <div class="tip"><strong>Outcome</strong>Ask for the format you want back.</div>
+            <div class="tip"><strong>Constraints</strong>Add tone, length, audience, or sources.</div>
+          </div>
+          <div class="result-panel" id="result-panel">
+            <p id="punchline">Look at that. A question became a prompt.</p>
+            <div class="actions">
+              <a class="btn primary" id="launch" target="_blank" rel="noopener noreferrer">Open the helpful place</a>
+              <button class="btn" id="copy-prompt" type="button">Copy improved prompt</button>
+              <button class="btn" id="replay" type="button">Replay</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel card">
+        <h2>Why this is nicer</h2>
+        <p>The original joke is funny because it teaches the obvious thing visually. This version keeps the wink, but nudges toward better prompting instead of just shaming the asker.</p>
+      </article>
+      <article class="panel card">
+        <h2>Value add idea</h2>
+        <p>Add prompt recipes by audience: executive summary, beginner explanation, troubleshooting checklist, email draft, meeting agenda, or Microsoft Learn path.</p>
+      </article>
+      <article class="panel card">
+        <h2>Public-site safe</h2>
+        <p>No official Microsoft marks, no copied assets, no analytics, no backend, and no user data stored. The URL itself carries the question.</p>
+      </article>
+    </section>
+
+    <section class="research card">
+      <h2>Research notes from the original pattern</h2>
+      <div class="research-grid">
+        <div>
+          <p>The current Let Me Google That page is a JavaScript-driven static experience. Its public HTML exposes a classic search box, two buttons, generated share URL, copy/preview/shorten controls, share buttons, and a query-string player.</p>
+          <p>The main player reads <code>?q=...</code>, animates a fake cursor to the search field, types the query, moves to the search button, shows a punchline, then redirects to a search destination. A <code>l=1</code> flag selects the lucky button.</p>
+        </div>
+        <div>
+          <p>This implementation borrows the interaction model, not the assets or code: generate link, animate query, teach the action, and send the viewer toward a useful destination.</p>
+          <p>Recommended public positioning: "Unofficial parody / prompt coaching helper." Keep it clearly unaffiliated with Microsoft and avoid official logos unless you have brand approval.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Built for laughs, better prompts, and fewer "quick question" drive-bys. Not affiliated with Microsoft.
+    </footer>
+  </main>
+
+  <script>
+    const $ = (selector) => document.querySelector(selector);
+
+    const state = {
+      question: "",
+      destination: "copilot",
+      tone: "kind",
+      timerIds: []
+    };
+
+    const destinations = {
+      copilot: {
+        label: "Copilot",
+        address: "https://copilot.microsoft.com/",
+        buildUrl: (query) => `https://copilot.microsoft.com/?q=${encodeURIComponent(query)}`
+      },
+      bing: {
+        label: "Bing search",
+        address: "https://www.bing.com/search",
+        buildUrl: (query) => `https://www.bing.com/search?q=${encodeURIComponent(query)}`
+      },
+      learn: {
+        label: "Microsoft Learn",
+        address: "https://learn.microsoft.com/search/",
+        buildUrl: (query) => `https://learn.microsoft.com/search/?terms=${encodeURIComponent(query)}`
+      },
+      work: {
+        label: "Microsoft 365",
+        address: "https://www.microsoft365.com/",
+        buildUrl: (query) => `https://www.microsoft365.com/search/results/all/${encodeURIComponent(query)}`
+      }
+    };
+
+    const toneLines = {
+      kind: "Tiny nudge: asking Copilot directly is usually faster than asking the group chat.",
+      spicy: "A bold experiment: what if we asked the computer made for answering questions?",
+      coach: "Prompt upgrade complete: context + outcome + constraints. Chef's kiss."
+    };
+
+    function enhancedPrompt(question, tone) {
+      const trimmed = question.trim();
+      if (tone === "coach") {
+        return `Help me with this: ${trimmed}\n\nPlease explain the answer clearly, include assumptions, and give me next steps I can act on.`;
+      }
+      if (tone === "spicy") {
+        return `${trimmed}\n\nAnswer directly, keep it practical, and pretend I searched before asking.`;
+      }
+      return `${trimmed}\n\nPlease give me a concise, helpful answer with the most useful next step.`;
+    }
+
+    function clearTimers() {
+      state.timerIds.forEach((id) => clearTimeout(id));
+      state.timerIds = [];
+    }
+
+    function wait(ms, fn) {
+      const id = setTimeout(fn, ms);
+      state.timerIds.push(id);
+    }
+
+    function setInstruction(text) {
+      $("#instruction").textContent = text;
+    }
+
+    function setCursor(x, y, visible = true) {
+      const cursor = $("#cursor");
+      cursor.style.opacity = visible ? "1" : "0";
+      cursor.style.transform = `translate(${x}px, ${y}px)`;
+    }
+
+    function getParams() {
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get("q") || "";
+      const destination = destinations[params.get("to")] ? params.get("to") : "copilot";
+      const tone = toneLines[params.get("tone")] ? params.get("tone") : "kind";
+      return { q, destination, tone };
+    }
+
+    function makeShareUrl(question, destination, tone) {
+      const url = new URL(window.location.href);
+      url.search = "";
+      url.searchParams.set("q", question);
+      url.searchParams.set("to", destination);
+      url.searchParams.set("tone", tone);
+      return url.toString();
+    }
+
+    async function copyText(text) {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const temp = document.createElement("textarea");
+      temp.value = text;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand("copy");
+      temp.remove();
+    }
+
+    function typeText(text, index = 0) {
+      $("#typed").textContent = text.slice(0, index);
+      if (index <= text.length) {
+        wait(18 + Math.random() * 35, () => typeText(text, index + 1));
+      } else {
+        doneTyping();
+      }
+    }
+
+    function doneTyping() {
+      setInstruction("Step 2: Click Ask. Yes, the big button.");
+      setCursor(300, 48);
+      wait(950, () => {
+        $("#ask-button").focus();
+        setInstruction(toneLines[state.tone]);
+        $("#result-panel").classList.add("show");
+        $("#punchline").textContent = toneLines[state.tone];
+        const prompt = enhancedPrompt(state.question, state.tone);
+        $("#launch").href = destinations[state.destination].buildUrl(prompt);
+        $("#launch").textContent = `Open ${destinations[state.destination].label}`;
+        setCursor(300, 48, false);
+      });
+    }
+
+    function play(question, destination = "copilot", tone = "kind") {
+      clearTimers();
+      state.question = question.trim() || "How do I write a better Copilot prompt?";
+      state.destination = destination;
+      state.tone = tone;
+      $("#typed").textContent = "";
+      $("#result-panel").classList.remove("show");
+      $("#address").textContent = destinations[destination].address;
+      setInstruction("Step 1: Put the question where the helpful robot can see it.");
+      setCursor(-4, 78);
+      wait(500, () => {
+        setCursor(62, 106);
+        wait(850, () => {
+          typeText(enhancedPrompt(state.question, tone));
+        });
+      });
+    }
+
+    $("#builder").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const question = $("#question").value.trim() || "How do I use Microsoft Copilot?";
+      const destination = $("#destination").value;
+      const tone = $("#tone").value;
+      const shareUrl = makeShareUrl(question, destination, tone);
+      $("#share-url").value = shareUrl;
+      $("#open-link").href = shareUrl;
+      $("#output").classList.add("show");
+      play(question, destination, tone);
+    });
+
+    $("#demo").addEventListener("click", () => {
+      const question = $("#question").value.trim() || "What is the fastest way to learn Microsoft Copilot prompts?";
+      play(question, $("#destination").value, $("#tone").value);
+    });
+
+    $("#copy-link").addEventListener("click", async () => {
+      await copyText($("#share-url").value);
+      $("#copy-link").textContent = "Copied";
+      wait(1200, () => {
+        $("#copy-link").textContent = "Copy link";
+      });
+    });
+
+    $("#copy-prompt").addEventListener("click", async () => {
+      await copyText(enhancedPrompt(state.question, state.tone));
+      $("#copy-prompt").textContent = "Prompt copied";
+      wait(1200, () => {
+        $("#copy-prompt").textContent = "Copy improved prompt";
+      });
+    });
+
+    $("#replay").addEventListener("click", () => {
+      play(state.question, state.destination, state.tone);
+    });
+
+    const params = getParams();
+    if (params.q) {
+      $("#question").value = params.q;
+      $("#destination").value = params.destination;
+      $("#tone").value = params.tone;
+      play(params.q, params.destination, params.tone);
+    } else {
+      play("How do I write a better prompt for Microsoft Copilot?", "copilot", "kind");
+    }
+  </script>
+</body>
+</html>
