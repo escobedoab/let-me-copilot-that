@@ -817,13 +817,13 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.9.6</span></span>
+      <span>Version <span id="version">v0.9.7</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.9.6";
+    const SITE_VERSION = "v0.9.7";
 
     const state = {
       question: "",
@@ -1039,8 +1039,8 @@
     function updateCoaching(prompt) {
       const intent = classifyRequest(state.question);
       $("#prompt-preview").textContent = state.style === "exact" ? prompt : coachingDisplay(state.question);
-      if (state.style === "exact") {
-        $("#coaching-panel").hidden = true;
+      syncCoachingVisibility();
+      if (isExactMode()) {
         $("#why-intent").textContent = "No rewrite selected. The original prompt is preserved exactly as typed.";
         $("#why-ai").textContent = "Nothing was changed. This mode is for the classic fun-link experience: animate the ask, then search it.";
         $("#why-structure").textContent = "No structure was added, so the recipient sees the original wording.";
@@ -1048,11 +1048,18 @@
         return;
       }
 
-      $("#coaching-panel").hidden = false;
       $("#why-intent").textContent = `Detected this as a ${intent.type} request and reframed it around the desired outcome.`;
       $("#why-ai").textContent = "Turns the ask into a complete prompt with goal, structure, assumptions, and guidance.";
       $("#why-structure").textContent = `Uses sections 1-3 to clarify intent, context, and desired output before rewriting the prompt.`;
       $("#why-constraints").textContent = `Bing receives only section 5, the final rewritten prompt, so the search stays focused on answering the request.`;
+    }
+
+    function isExactMode() {
+      return state.style === "exact";
+    }
+
+    function syncCoachingVisibility() {
+      $("#coaching-panel").hidden = isExactMode();
     }
 
     function updateSubmitModeUi() {
@@ -1198,6 +1205,7 @@
       state.style = style;
       renderTypedPrompt("");
       $("#result-panel").classList.remove("show");
+      syncCoachingVisibility();
       $("#address").textContent = destinations[destination].address;
       $("#service-name").textContent = destinations[destination].label;
       $("#ask-button").textContent = destination === "bing" ? "Search" : "Ask";
@@ -1285,6 +1293,7 @@
       const button = $("#launch");
 
       clearTimers();
+      syncCoachingVisibility();
       setInstruction(`Step 3: Submit the rewritten prompt to ${destination.label}.`);
       moveCursorToElement(button, 0.5, 0.5);
       button.classList.add("pulse");
