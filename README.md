@@ -23,8 +23,9 @@ Research summary from the current public site and search snippets:
 - The submit button animates before opening Bing with the rewritten prompt already searched.
 - The share button uses the browser share sheet when available and falls back to copying the hosted link.
 - Link creators can choose the recipient experience: stop on the coaching page, or auto-submit to Bing after the animation.
-- Auto-submit opens Bing in a new tab after the animation. If a browser blocks the new tab, the page stays visible and asks the recipient to click submit.
-- Rewritten prompts reconstruct the original ask into a structured AI-ready request: direct answer, context/assumptions, organized key points, practical recommendation, and tone guidance.
+- Submit actions always open Bing search in a new tab with the rewritten prompt. If a browser blocks the new tab, the page stays visible and asks the recipient to click submit.
+- Rewritten prompts dynamically classify the original ask (compare, draft, plan, troubleshoot, summarize, research, code, explain, or general) and reconstruct it into a structured AI-ready request.
+- Dynamic rewrites include a direct answer request, context/assumptions, intent-specific output format, key points, practical recommendation, and tone guidance.
 - Rewritten prompts also include AI-answer cues such as "AI-generated answer," "plain language," "key points," and "next step" to increase the chance of an AI-style search response.
 - Bing ultimately controls whether an AI answer appears; account, region, query, and feature rollout can still affect the result.
 - No analytics, no third-party scripts, no backend, and no stored user data.

@@ -852,8 +852,78 @@
       coach: "Prompt upgrade complete: context + outcome + constraints. Chef's kiss."
     };
 
+    function classifyRequest(question) {
+      const text = question.toLowerCase();
+      const checks = [
+        {
+          type: "compare",
+          test: /\b(compare|difference|versus|vs\.?|which is better|pros and cons)\b/,
+          outcome: "a comparison with tradeoffs and a recommendation",
+          format: "Use a short comparison table, then summarize the best choice.",
+          lens: "Call out when each option is the better fit."
+        },
+        {
+          type: "draft",
+          test: /\b(write|draft|compose|email|message|post|reply|announcement)\b/,
+          outcome: "a polished draft I can send or adapt",
+          format: "Provide a ready-to-use draft plus a shorter alternate version.",
+          lens: "Make the tone professional, clear, and human."
+        },
+        {
+          type: "plan",
+          test: /\b(plan|strategy|roadmap|steps|timeline|approach|how should i|how do i)\b/,
+          outcome: "an actionable plan",
+          format: "Break the answer into phases, decisions, risks, and next actions.",
+          lens: "Prioritize practical steps over theory."
+        },
+        {
+          type: "troubleshoot",
+          test: /\b(fix|debug|error|issue|problem|broken|not working|troubleshoot)\b/,
+          outcome: "a troubleshooting path",
+          format: "List likely causes, quick checks, and fixes in order.",
+          lens: "Start with the simplest likely cause."
+        },
+        {
+          type: "summarize",
+          test: /\b(summarize|recap|tldr|tl;dr|brief|key takeaways)\b/,
+          outcome: "a concise summary",
+          format: "Return an executive summary, key bullets, and open questions.",
+          lens: "Separate facts from assumptions."
+        },
+        {
+          type: "research",
+          test: /\b(research|find|lookup|latest|sources|evidence|market|trend)\b/,
+          outcome: "a sourced research answer",
+          format: "Synthesize the answer and include source links or search terms to verify.",
+          lens: "Highlight what is current, uncertain, or needs verification."
+        },
+        {
+          type: "code",
+          test: /\b(code|script|api|javascript|typescript|python|html|css|github)\b/,
+          outcome: "an implementation-oriented answer",
+          format: "Explain the approach, provide example code, and note edge cases.",
+          lens: "Favor simple, maintainable solutions."
+        },
+        {
+          type: "explain",
+          test: /\b(what is|why|explain|teach|learn|understand)\b/,
+          outcome: "a clear explanation",
+          format: "Explain it simply first, then add detail and examples.",
+          lens: "Use plain language and avoid jargon unless needed."
+        }
+      ];
+
+      return checks.find((check) => check.test.test(text)) || {
+        type: "general",
+        outcome: "a useful answer",
+        format: "Give a direct answer, key points, and a practical next step.",
+        lens: "Focus on what is most useful to do next."
+      };
+    }
+
     function enhancedPrompt(question, tone) {
       const trimmed = question.trim();
+      const intent = classifyRequest(trimmed);
       const toneGuidance = {
         kind: "Keep the tone clear, helpful, and professional.",
         playful: "Keep the tone friendly, lightly playful, and still useful.",
@@ -861,18 +931,19 @@
       }[tone] || "Keep the tone clear, helpful, and professional.";
 
       if (tone === "coach") {
-        return `Use an AI-generated answer to help with this request:\n\n"${trimmed}"\n\nReconstruct this into the strongest possible answer. Please include:\n1. A direct answer first.\n2. The key context or assumptions that matter.\n3. A short explanation of the best reasoning.\n4. Practical next steps or recommendations.\n5. A brief note on how this prompt was interpreted.\n\n${toneGuidance}`;
+        return `Use an AI-generated answer to help with this ${intent.type} request:\n\n"${trimmed}"\n\nGoal: Produce ${intent.outcome}.\n\nPlease structure the answer this way:\n1. Start with the direct answer in plain language.\n2. State the key context or assumptions that matter.\n3. ${intent.format}\n4. Explain the reasoning briefly.\n5. End with practical next steps or a recommendation.\n6. Add a short note explaining how this prompt was improved.\n\nGuidance: ${intent.lens} ${toneGuidance}`;
       }
 
-      return `Use an AI-generated answer to respond to this request:\n\n"${trimmed}"\n\nPlease provide:\n1. A direct answer in plain language.\n2. The most important context or assumptions.\n3. Key points organized as bullets.\n4. A practical recommendation or next step.\n\n${toneGuidance}`;
+      return `Use an AI-generated answer to respond to this ${intent.type} request:\n\n"${trimmed}"\n\nGoal: Produce ${intent.outcome}.\n\nPlease provide:\n1. A direct answer in plain language.\n2. The most important context or assumptions.\n3. ${intent.format}\n4. Key points organized clearly.\n5. A practical recommendation or next step.\n\nGuidance: ${intent.lens} ${toneGuidance}`;
     }
 
     function updateCoaching(prompt) {
+      const intent = classifyRequest(state.question);
       $("#prompt-preview").textContent = prompt;
-      $("#why-intent").textContent = "Reframes the question as a direct request for an answer, not just keywords.";
+      $("#why-intent").textContent = `Detected this as a ${intent.type} request and reframed it around the desired outcome.`;
       $("#why-ai").textContent = "Adds language like \"AI-generated answer,\" \"synthesize,\" and \"summary\" to encourage an AI-style response.";
-      $("#why-structure").textContent = "Requests key points and next steps so the response is scannable and actionable.";
-      $("#why-constraints").textContent = "Adds practical tone and format guidance that works across modern AI assistants and AI search.";
+      $("#why-structure").textContent = `Uses a response format that fits the ask: ${intent.format}`;
+      $("#why-constraints").textContent = `Adds guidance for better quality: ${intent.lens}`;
     }
 
     function updateSubmitModeUi() {
@@ -993,9 +1064,7 @@
         $("#result-panel").classList.add("show");
         $("#punchline").textContent = toneLines[state.tone];
         updateCoaching(enhancedPrompt(state.question, state.tone));
-        $("#launch").textContent = destinations[state.destination].prefill
-          ? `Submit to ${destinations[state.destination].label}`
-          : `Copy prompt + open ${destinations[state.destination].label}`;
+        $("#launch").textContent = "Submit to Bing search";
         if (state.submitMode === "auto") {
           setInstruction("Auto-submit is on. Opening Bing after the click animation...");
           wait(1300, () => {
@@ -1094,7 +1163,7 @@
     });
 
     function submitToDestination({ auto = false } = {}) {
-      const destination = auto ? destinations.bing : destinations[state.destination];
+      const destination = destinations.bing;
       const prompt = enhancedPrompt(state.question, state.tone);
       const button = $("#launch");
 
@@ -1102,30 +1171,22 @@
       setInstruction(`Step 3: Submit the rewritten prompt to ${destination.label}.`);
       moveCursorToElement(button, 0.5, 0.5);
       button.classList.add("pulse");
-      button.textContent = destination.prefill ? "Submitting..." : "Copying prompt...";
+      button.textContent = "Submitting...";
 
       wait(900, async () => {
-        if (destination.prefill) {
-          button.textContent = `Opening ${destination.label}`;
-          const url = destination.buildUrl(prompt);
-          const opened = window.open(url, "_blank", "noopener,noreferrer");
-          if (auto && !opened) {
-            button.textContent = "Popup blocked — click to open Bing";
-            setInstruction("Your browser blocked the new tab. Click Submit to Bing to open it.");
-            button.classList.remove("pulse");
-            return;
-          }
-        } else {
-          await copyText(prompt);
-          button.textContent = "Prompt copied — opening Copilot";
-          window.open(destination.address, "_blank", "noopener,noreferrer");
+        button.textContent = `Opening ${destination.label}`;
+        const url = destination.buildUrl(prompt);
+        const opened = window.open(url, "_blank", "noopener,noreferrer");
+        if (auto && !opened) {
+          button.textContent = "Popup blocked — click to open Bing";
+          setInstruction("Your browser blocked the new tab. Click Submit to Bing to open it.");
+          button.classList.remove("pulse");
+          return;
         }
 
         wait(1300, () => {
           button.classList.remove("pulse");
-          button.textContent = destination.prefill
-            ? `Submit to ${destination.label}`
-            : `Copy prompt + open ${destination.label}`;
+          button.textContent = `Submit to ${destination.label}`;
           moveCursorToElement(button, 0.5, 0.5);
         });
       });
@@ -1136,7 +1197,7 @@
     });
 
     $("#replay").addEventListener("click", () => {
-      play(state.question, state.destination, state.tone);
+      play(state.question, state.destination, state.tone, state.submitMode);
     });
 
     const params = getParams();
