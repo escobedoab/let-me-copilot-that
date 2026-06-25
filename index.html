@@ -806,17 +806,25 @@
     }
 
     function doneTyping() {
-      setInstruction("Step 2: Click Ask. Yes, the big button.");
-      setCursor(300, 48);
+      const askButton = $("#ask-button");
+      const buttonBox = askButton.getBoundingClientRect();
+      const stageBox = $(".copilot").getBoundingClientRect();
+      const actionName = state.destination === "bing" ? "Search" : "Ask";
+
+      setInstruction(`Step 2: Click ${actionName}.`);
+      setCursor(buttonBox.left - stageBox.left + 16, buttonBox.top - stageBox.top + 12);
       wait(950, () => {
-        $("#ask-button").focus();
+        askButton.focus();
+        askButton.classList.add("pulse");
         setInstruction(toneLines[state.tone]);
         $("#result-panel").classList.add("show");
         $("#punchline").textContent = toneLines[state.tone];
         $("#launch").textContent = destinations[state.destination].prefill
           ? `Submit to ${destinations[state.destination].label}`
           : `Copy prompt + open ${destinations[state.destination].label}`;
-        setCursor(300, 48, false);
+        wait(900, () => {
+          askButton.classList.remove("pulse");
+        });
       });
     }
 
