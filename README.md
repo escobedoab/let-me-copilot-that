@@ -52,6 +52,16 @@ Parameters:
 - `tone`: `kind`, `playful`, or `coach`.
 - `submit`: `manual` or `auto`. Auto mode forces the destination to Bing and submits after the animation.
 
+## Version display
+
+The footer displays the current site version and build SHA, for example:
+
+```text
+Version v0.8.0 · 72d374b
+```
+
+After each publish, verify the visible footer version to make sure the browser is not showing a cached copy.
+
 ## Public positioning
 
 Recommended tagline:

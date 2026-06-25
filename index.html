@@ -805,11 +805,15 @@
 
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
+      <br>
+      <span>Version <span id="version">v0.8.0 · dev</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
+    const SITE_VERSION = "v0.8.0";
+    const BUILD_SHA = "dev";
 
     const state = {
       question: "",
@@ -1124,6 +1128,10 @@
       updateSubmitModeUi();
     }));
 
+    function updateVersionDisplay() {
+      $("#version").textContent = `${SITE_VERSION} · ${BUILD_SHA}`;
+    }
+
     $("#copy-link").addEventListener("click", async () => {
       await copyText($("#share-url").value);
       $("#copy-link").textContent = "Copied";
@@ -1201,6 +1209,7 @@
     });
 
     const params = getParams();
+    updateVersionDisplay();
     updateSubmitModeUi();
     if (params.q) {
       $("#question").value = params.q;
