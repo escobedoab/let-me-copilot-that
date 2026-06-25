@@ -27,6 +27,7 @@ Research summary from the current public site and search snippets:
 - Rewritten prompts dynamically classify the original ask (compare, draft, plan, troubleshoot, summarize, research, code, explain, or general), identify intent/context/output needs, and then recreate a clearer prompt.
 - Dynamic rewrites now use a five-part structure: intent, context needed, desired output, clarifying questions, and a final rewritten prompt.
 - Rewritten prompts avoid awkward AI preambles and focus on making the user's original request clearer, more structured, and easier to answer.
+- Exact prompt mode skips rewriting entirely; it animates and submits the original prompt exactly as typed.
 - Bing ultimately controls whether an AI answer appears; account, region, query, and feature rollout can still affect the result.
 - No analytics, no third-party scripts, no backend, and no stored user data.
 - GitHub Pages-ready static deployment.
@@ -50,14 +51,14 @@ Parameters:
 - `q`: the question or task to animate.
 - `to`: `copilot`, `bing`, `learn`, or `work`.
 - `submit`: `manual` or `auto`. Auto mode forces the destination to Bing and submits after the animation.
-- `style`: `helpful` or `spicy`. This changes the on-page coaching voice, not the best-practice rewrite structure.
+- `style`: `helpful`, `spicy`, or `exact`. Exact mode skips rewriting and sends the original prompt.
 
 ## Version display
 
 The footer displays the current site version, for example:
 
 ```text
-Version v0.8.9
+Version v0.9.0
 ```
 
 After each publish, verify the visible footer version to make sure the browser is not showing a cached copy.
