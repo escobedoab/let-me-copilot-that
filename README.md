@@ -18,6 +18,7 @@ Research summary from the current public site and search snippets:
 - A kinder, workplace-safe tone.
 - Copilot-style prompt coaching: context, outcome, and constraints.
 - Multiple destinations: Copilot, Bing, Microsoft Learn, and Microsoft 365 search.
+- Copilot destination copies the improved prompt before opening Copilot because the public Copilot site does not reliably support a prefilled prompt URL.
 - No analytics, no third-party scripts, no backend, and no stored user data.
 - GitHub Pages-ready static deployment.
 - Accessibility basics, responsive layout, and reduced-motion support.

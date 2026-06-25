@@ -685,21 +685,25 @@
       copilot: {
         label: "Copilot",
         address: "https://copilot.microsoft.com/",
-        buildUrl: (query) => `https://copilot.microsoft.com/?q=${encodeURIComponent(query)}`
+        prefill: false,
+        buildUrl: () => "https://copilot.microsoft.com/"
       },
       bing: {
         label: "Bing search",
         address: "https://www.bing.com/search",
+        prefill: true,
         buildUrl: (query) => `https://www.bing.com/search?q=${encodeURIComponent(query)}`
       },
       learn: {
         label: "Microsoft Learn",
         address: "https://learn.microsoft.com/search/",
+        prefill: true,
         buildUrl: (query) => `https://learn.microsoft.com/search/?terms=${encodeURIComponent(query)}`
       },
       work: {
         label: "Microsoft 365",
         address: "https://www.microsoft365.com/",
+        prefill: true,
         buildUrl: (query) => `https://www.microsoft365.com/search/results/all/${encodeURIComponent(query)}`
       }
     };
@@ -790,7 +794,9 @@
         $("#punchline").textContent = toneLines[state.tone];
         const prompt = enhancedPrompt(state.question, state.tone);
         $("#launch").href = destinations[state.destination].buildUrl(prompt);
-        $("#launch").textContent = `Open ${destinations[state.destination].label}`;
+        $("#launch").textContent = destinations[state.destination].prefill
+          ? `Open ${destinations[state.destination].label}`
+          : `Copy prompt + open ${destinations[state.destination].label}`;
         setCursor(300, 48, false);
       });
     }
@@ -843,6 +849,20 @@
       $("#copy-prompt").textContent = "Prompt copied";
       wait(1200, () => {
         $("#copy-prompt").textContent = "Copy improved prompt";
+      });
+    });
+
+    $("#launch").addEventListener("click", async (event) => {
+      if (destinations[state.destination].prefill) {
+        return;
+      }
+
+      event.preventDefault();
+      await copyText(enhancedPrompt(state.question, state.tone));
+      $("#launch").textContent = "Prompt copied — opening Copilot";
+      window.open(destinations[state.destination].address, "_blank", "noopener,noreferrer");
+      wait(1600, () => {
+        $("#launch").textContent = `Copy prompt + open ${destinations[state.destination].label}`;
       });
     });
 
