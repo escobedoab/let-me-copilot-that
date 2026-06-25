@@ -693,12 +693,12 @@
         <label>What should the shared link do?</label>
         <div class="radio-group" id="submit-mode">
           <label class="radio-card">
-            <input type="radio" name="submit-mode" value="auto" checked>
-            <span><strong>Auto-submit to Bing</strong>Animate the prompt rewrite, click Search, then open Bing in a new tab.</span>
+            <input type="radio" name="submit-mode" value="manual" checked>
+            <span><strong>Stop on the coaching page</strong>Let them review the rewritten prompt and click submit themselves.</span>
           </label>
           <label class="radio-card">
-            <input type="radio" name="submit-mode" value="manual">
-            <span><strong>Stop on the coaching page</strong>Let them review the rewritten prompt and click submit themselves.</span>
+            <input type="radio" name="submit-mode" value="auto">
+            <span><strong>Auto-submit to Bing</strong>Animate the prompt rewrite, click Search, then open Bing in a new tab.</span>
           </label>
         </div>
         <p class="helper" id="submit-mode-note">Best for sharing: the recipient sees the animation, then Bing opens in a new tab with the rewritten prompt searched.</p>
@@ -802,19 +802,19 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.8.5</span></span>
+      <span>Version <span id="version">v0.8.6</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.8.5";
+    const SITE_VERSION = "v0.8.6";
 
     const state = {
       question: "",
       destination: "bing",
       style: "helpful",
-      submitMode: "auto",
+      submitMode: "manual",
       timerIds: []
     };
 
@@ -940,11 +940,11 @@
     }
 
     function getSubmitMode() {
-      return document.querySelector('input[name="submit-mode"]:checked')?.value || "auto";
+      return document.querySelector('input[name="submit-mode"]:checked')?.value || "manual";
     }
 
     function setSubmitMode(submitMode) {
-      const mode = submitMode === "manual" ? "manual" : "auto";
+      const mode = submitMode === "auto" ? "auto" : "manual";
       const option = document.querySelector(`input[name="submit-mode"][value="${mode}"]`);
       if (option) {
         option.checked = true;
@@ -1199,7 +1199,7 @@
       updateSubmitModeUi();
       play(params.q, params.destination, params.submitMode, params.style);
     } else {
-      setSubmitMode("auto");
+      setSubmitMode("manual");
       updateSubmitModeUi();
       play("How do I write a better prompt for Microsoft Copilot?", "bing", "manual", "helpful");
     }

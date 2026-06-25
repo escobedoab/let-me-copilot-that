@@ -22,7 +22,7 @@ Research summary from the current public site and search snippets:
 - Copilot destination copies the improved prompt before opening Copilot because the public Copilot site does not reliably support a prefilled prompt URL.
 - The submit button animates before opening Bing with the rewritten prompt already searched.
 - The share button uses the browser share sheet when available and falls back to copying the hosted link.
-- Link creators can choose the recipient experience: stop on the coaching page, or auto-submit to Bing after the animation.
+- Link creators can choose the recipient experience: stop on the coaching page (default), or auto-submit to Bing after the animation.
 - Submit actions always open Bing AI Search in a new tab with the rewritten prompt. If a browser blocks the new tab, the page stays visible and asks the recipient to click submit.
 - Rewritten prompts dynamically classify the original ask (compare, draft, plan, troubleshoot, summarize, research, code, explain, or general) and reconstruct it into a structured AI-ready request.
 - Dynamic rewrites include a direct answer request, context/assumptions, intent-specific output format, key points, and clarifying questions.
@@ -42,7 +42,7 @@ Research summary from the current public site and search snippets:
 ## URL format
 
 ```text
-/?q=How%20do%20I%20use%20Copilot&to=bing&submit=auto&style=helpful
+/?q=How%20do%20I%20use%20Copilot&to=bing&submit=manual&style=helpful
 ```
 
 Parameters:
@@ -57,7 +57,7 @@ Parameters:
 The footer displays the current site version, for example:
 
 ```text
-Version v0.8.5
+Version v0.8.6
 ```
 
 After each publish, verify the visible footer version to make sure the browser is not showing a cached copy.
