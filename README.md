@@ -1,6 +1,6 @@
 # Let Me Copilot That For You
 
-A playful, constructive Microsoft Copilot-themed reimagining of the classic "let me search that for you" interaction.
+A playful, constructive reimagining of the classic "let me search that for you" interaction, tuned for Bing search and Copilot-era prompt coaching.
 
 This is intentionally **not** a clone of the original site's assets, branding, copy, or code. It borrows the interaction pattern: generate a link, animate the act of asking, and point the viewer toward a helpful destination.
 
@@ -17,20 +17,12 @@ Research summary from the current public site and search snippets:
 
 - A kinder, workplace-safe tone.
 - Copilot-style prompt coaching: context, outcome, and constraints.
-- Multiple destinations: Copilot, Bing, Microsoft Learn, and Microsoft 365 search.
+- Bing search is the default destination because it supports reliable query URLs for public sharing.
+- Optional destinations include Copilot, Microsoft Learn, and Microsoft 365 search.
 - Copilot destination copies the improved prompt before opening Copilot because the public Copilot site does not reliably support a prefilled prompt URL.
 - No analytics, no third-party scripts, no backend, and no stored user data.
 - GitHub Pages-ready static deployment.
 - Accessibility basics, responsive layout, and reduced-motion support.
-
-## Run locally
-
-Open `index.html` directly in a browser, or serve the folder with any static server:
-
-```powershell
-cd .\let-me-copilot-that
-npx serve .
-```
 
 ## Deploy with GitHub Pages
 
@@ -42,24 +34,31 @@ npx serve .
 ## URL format
 
 ```text
-/?q=How%20do%20I%20use%20Copilot&to=copilot&tone=kind
+/?q=How%20do%20I%20use%20Copilot&to=bing&tone=kind
 ```
 
 Parameters:
 
 - `q`: the question or task to animate.
 - `to`: `copilot`, `bing`, `learn`, or `work`.
-- `tone`: `kind`, `spicy`, or `coach`.
+- `tone`: `kind`, `playful`, or `coach`.
 
 ## Public positioning
 
 Recommended tagline:
 
-> A cheerful prompt-coaching nudge for people who ask before they ask Copilot.
+> A cheerful prompt-coaching nudge for people who ask before they search.
 
 Recommended disclaimer:
 
-> Unofficial parody/helper site. Not affiliated with Microsoft.
+> Unofficial prompt helper. Not affiliated with Microsoft.
+
+Customer-ready content posture:
+
+- Keep the tone playful, not mean.
+- Avoid official Microsoft logos or brand marks unless approved.
+- Do not collect analytics or store prompts.
+- Treat copied prompts as user-provided content carried only in the URL.
 
 ## Value-add backlog
 

@@ -12,9 +12,9 @@
     })();
   </script>
   <title>Let Me Copilot That For You</title>
-  <meta name="description" content="A playful, constructive Microsoft Copilot-themed way to show someone how to ask a better question.">
+  <meta name="description" content="A playful, constructive Bing and Copilot-era prompt helper for finding answers faster.">
   <meta property="og:title" content="Let Me Copilot That For You">
-  <meta property="og:description" content="Type a question, generate a tiny teaching link, and let Copilot do the polite nudge.">
+  <meta property="og:description" content="Type a question, generate a tiny teaching link, and share a friendly nudge toward Bing and better prompts.">
   <meta property="og:type" content="website">
   <meta name="theme-color" content="#b11f4b">
   <style>
@@ -559,13 +559,13 @@
   <main class="page">
     <div class="topbar">
       <div class="brand"><span class="spark">✦</span> Let Me Copilot That</div>
-      <span>Unofficial parody helper • no tracking • no Microsoft logos</span>
+      <span>Unofficial prompt helper • no tracking • no Microsoft logos</span>
     </div>
 
     <section class="shell">
       <form class="builder card" id="builder">
         <h1>Let me <span class="accent">Copilot</span> that for you.</h1>
-        <p class="lede">Type a question, generate a link, and share a tiny animated lesson in asking Copilot well.</p>
+        <p class="lede">Type a question, generate a link, and share a tiny animated lesson in finding the answer with Bing and Copilot.</p>
 
         <label for="question">Question or task</label>
         <textarea id="question" placeholder="Example: Summarize the difference between Microsoft 365 Copilot and Copilot Chat"></textarea>
@@ -574,8 +574,8 @@
           <div>
             <label for="destination">Destination</label>
             <select id="destination">
-              <option value="copilot">Copilot</option>
               <option value="bing">Bing search</option>
+              <option value="copilot">Copilot</option>
               <option value="learn">Microsoft Learn</option>
               <option value="work">Microsoft 365</option>
             </select>
@@ -584,7 +584,7 @@
             <label for="tone">Tone</label>
             <select id="tone">
               <option value="kind">Kind nudge</option>
-              <option value="spicy">Lightly spicy</option>
+              <option value="playful">Playful nudge</option>
               <option value="coach">Prompt coach</option>
             </select>
           </div>
@@ -644,7 +644,7 @@
     <section class="grid">
       <article class="panel card">
         <h2>The joke, but useful</h2>
-        <p>The original joke is funny because it teaches the obvious thing visually. This version keeps the wink, but nudges toward better prompting instead of just shaming the asker.</p>
+        <p>The original joke is funny because it teaches the obvious thing visually. This version keeps the wink, but nudges toward better searching and better prompting.</p>
       </article>
       <article class="panel card">
         <h2>Public-site safe</h2>
@@ -661,13 +661,13 @@
         </div>
         <div>
           <p>This implementation borrows the interaction model, not the assets or code: generate link, animate query, teach the action, and send the viewer toward a useful destination.</p>
-          <p>Recommended public positioning: "Unofficial parody / prompt coaching helper." Keep it clearly unaffiliated with Microsoft and avoid official logos unless you have brand approval.</p>
+          <p>Recommended public positioning: "Unofficial prompt coaching helper." Keep it clearly unaffiliated with Microsoft and avoid official logos unless you have brand approval.</p>
         </div>
       </div>
     </details>
 
     <footer>
-      Built for laughs, better prompts, and fewer "quick question" drive-bys. Not affiliated with Microsoft.
+      Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
     </footer>
   </main>
 
@@ -676,7 +676,7 @@
 
     const state = {
       question: "",
-      destination: "copilot",
+      destination: "bing",
       tone: "kind",
       timerIds: []
     };
@@ -709,8 +709,8 @@
     };
 
     const toneLines = {
-      kind: "Tiny nudge: asking Copilot directly is usually faster than asking the group chat.",
-      spicy: "A bold experiment: what if we asked the computer made for answering questions?",
+      kind: "Tiny nudge: searching first is usually faster than asking the group chat.",
+      playful: "A friendly experiment: what if we asked the internet before starting a thread?",
       coach: "Prompt upgrade complete: context + outcome + constraints. Chef's kiss."
     };
 
@@ -719,7 +719,7 @@
       if (tone === "coach") {
         return `Help me with this: ${trimmed}\n\nPlease explain the answer clearly, include assumptions, and give me next steps I can act on.`;
       }
-      if (tone === "spicy") {
+      if (tone === "playful") {
         return `${trimmed}\n\nAnswer directly, keep it practical, and pretend I searched before asking.`;
       }
       return `${trimmed}\n\nPlease give me a concise, helpful answer with the most useful next step.`;
@@ -748,8 +748,9 @@
     function getParams() {
       const params = new URLSearchParams(window.location.search);
       const q = params.get("q") || "";
-      const destination = destinations[params.get("to")] ? params.get("to") : "copilot";
-      const tone = toneLines[params.get("tone")] ? params.get("tone") : "kind";
+      const destination = destinations[params.get("to")] ? params.get("to") : "bing";
+      const requestedTone = params.get("tone") === "spicy" ? "playful" : params.get("tone");
+      const tone = toneLines[requestedTone] ? requestedTone : "kind";
       return { q, destination, tone };
     }
 
@@ -877,7 +878,7 @@
       $("#tone").value = params.tone;
       play(params.q, params.destination, params.tone);
     } else {
-      play("How do I write a better prompt for Microsoft Copilot?", "copilot", "kind");
+      play("How do I write a better prompt for Microsoft Copilot?", "bing", "kind");
     }
   </script>
 </body>
