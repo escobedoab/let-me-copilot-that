@@ -683,6 +683,13 @@
         <label for="question">Question or task</label>
         <textarea id="question" placeholder="Example: Summarize the difference between Microsoft 365 Copilot and Copilot Chat"></textarea>
 
+        <label for="style">Delivery style</label>
+        <select id="style">
+          <option value="helpful">Helpful coach</option>
+          <option value="spicy">Spicy, but useful</option>
+        </select>
+        <p class="helper">This changes the on-page coaching voice. The prompt rewrite still follows the same best-practice structure.</p>
+
         <label>What should the shared link do?</label>
         <div class="radio-group" id="submit-mode">
           <label class="radio-card">
@@ -795,17 +802,18 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.8.3</span></span>
+      <span>Version <span id="version">v0.8.4</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.8.3";
+    const SITE_VERSION = "v0.8.4";
 
     const state = {
       question: "",
       destination: "bing",
+      style: "helpful",
       submitMode: "auto",
       timerIds: []
     };
@@ -818,10 +826,10 @@
         buildUrl: () => "https://copilot.microsoft.com/"
       },
       bing: {
-        label: "Bing search",
-        address: "https://www.bing.com/search",
+        label: "Bing AI Search",
+        address: "https://www.bing.com/mt",
         prefill: true,
-        buildUrl: (query) => `https://www.bing.com/search?q=${encodeURIComponent(query)}`
+        buildUrl: (query) => `https://www.bing.com/mt?q=${encodeURIComponent(query)}`
       },
       learn: {
         label: "Microsoft Learn",
@@ -985,15 +993,17 @@
       const q = params.get("q") || "";
       const destination = destinations[params.get("to")] ? params.get("to") : "bing";
       const submitMode = params.get("submit") === "auto" ? "auto" : "manual";
-      return { q, destination: submitMode === "auto" ? "bing" : destination, submitMode };
+      const style = params.get("style") === "spicy" ? "spicy" : "helpful";
+      return { q, destination: submitMode === "auto" ? "bing" : destination, submitMode, style };
     }
 
-    function makeShareUrl(question, destination, submitMode) {
+    function makeShareUrl(question, destination, submitMode, style) {
       const url = new URL(window.location.href);
       url.search = "";
       url.searchParams.set("q", question);
       url.searchParams.set("to", destination);
       url.searchParams.set("submit", submitMode);
+      url.searchParams.set("style", style);
       return url.toString();
     }
 
@@ -1034,7 +1044,9 @@
         askButton.classList.add("pulse");
         setInstruction("Prompt rewritten using AI-search best practices.");
         $("#result-panel").classList.add("show");
-        $("#punchline").textContent = "Look at that. A casual ask became a stronger AI-search prompt.";
+        $("#punchline").textContent = state.style === "spicy"
+          ? "See? The group chat survived, and the prompt got better."
+          : "Look at that. A casual ask became a stronger AI-search prompt.";
         updateCoaching(enhancedPrompt(state.question));
         $("#launch").textContent = "Submit to Bing search";
         if (state.submitMode === "auto") {
@@ -1049,11 +1061,12 @@
       });
     }
 
-    function play(question, destination = "bing", submitMode = "manual") {
+    function play(question, destination = "bing", submitMode = "manual", style = "helpful") {
       clearTimers();
       state.question = question.trim() || "How do I write a better Copilot prompt?";
       state.destination = destination;
       state.submitMode = submitMode;
+      state.style = style;
       $("#typed").textContent = "";
       $("#result-panel").classList.remove("show");
       $("#address").textContent = destinations[destination].address;
@@ -1076,18 +1089,19 @@
       const question = $("#question").value.trim() || "How do I use Microsoft Copilot?";
       const submitMode = getSubmitMode();
       const destination = submitMode === "auto" ? "bing" : $("#destination").value;
-      const shareUrl = makeShareUrl(question, destination, submitMode);
+      const style = $("#style").value;
+      const shareUrl = makeShareUrl(question, destination, submitMode, style);
       $("#share-url").value = shareUrl;
       $("#open-link").href = shareUrl;
       $("#output").classList.add("show");
-      play(question, destination, submitMode);
+      play(question, destination, submitMode, style);
     });
 
     $("#demo").addEventListener("click", () => {
       const question = $("#question").value.trim() || "What is the fastest way to learn Microsoft Copilot prompts?";
       const submitMode = getSubmitMode();
       const destination = submitMode === "auto" ? "bing" : $("#destination").value;
-      play(question, destination, submitMode);
+      play(question, destination, submitMode, $("#style").value);
     });
 
     document.querySelectorAll('input[name="submit-mode"]').forEach((input) => input.addEventListener("change", () => {
@@ -1171,7 +1185,7 @@
     });
 
     $("#replay").addEventListener("click", () => {
-      play(state.question, state.destination, state.submitMode);
+      play(state.question, state.destination, state.submitMode, state.style);
     });
 
     const params = getParams();
@@ -1180,13 +1194,14 @@
     if (params.q) {
       $("#question").value = params.q;
       $("#destination").value = params.destination;
+      $("#style").value = params.style;
       setSubmitMode(params.submitMode);
       updateSubmitModeUi();
-      play(params.q, params.destination, params.submitMode);
+      play(params.q, params.destination, params.submitMode, params.style);
     } else {
       setSubmitMode("auto");
       updateSubmitModeUi();
-      play("How do I write a better prompt for Microsoft Copilot?", "bing", "manual");
+      play("How do I write a better prompt for Microsoft Copilot?", "bing", "manual", "helpful");
     }
   </script>
 </body>

@@ -17,13 +17,13 @@ Research summary from the current public site and search snippets:
 
 - A kinder, workplace-safe voice.
 - Copilot-style prompt coaching: context, outcome, and constraints.
-- Bing search is the default destination because it supports reliable query URLs for public sharing.
+- Bing AI Search is the default destination using `https://www.bing.com/mt?q=...`.
 - Optional destinations include Copilot, Microsoft Learn, and Microsoft 365 search.
 - Copilot destination copies the improved prompt before opening Copilot because the public Copilot site does not reliably support a prefilled prompt URL.
 - The submit button animates before opening Bing with the rewritten prompt already searched.
 - The share button uses the browser share sheet when available and falls back to copying the hosted link.
 - Link creators can choose the recipient experience: stop on the coaching page, or auto-submit to Bing after the animation.
-- Submit actions always open Bing search in a new tab with the rewritten prompt. If a browser blocks the new tab, the page stays visible and asks the recipient to click submit.
+- Submit actions always open Bing AI Search in a new tab with the rewritten prompt. If a browser blocks the new tab, the page stays visible and asks the recipient to click submit.
 - Rewritten prompts dynamically classify the original ask (compare, draft, plan, troubleshoot, summarize, research, code, explain, or general) and reconstruct it into a structured AI-ready request.
 - Dynamic rewrites include a direct answer request, context/assumptions, intent-specific output format, key points, and a practical recommendation.
 - Rewritten prompts also include AI-answer cues such as "AI-generated answer," "plain language," "key points," and "next step" to increase the chance of an AI-style search response.
@@ -42,7 +42,7 @@ Research summary from the current public site and search snippets:
 ## URL format
 
 ```text
-/?q=How%20do%20I%20use%20Copilot&to=bing&submit=auto
+/?q=How%20do%20I%20use%20Copilot&to=bing&submit=auto&style=helpful
 ```
 
 Parameters:
@@ -50,13 +50,14 @@ Parameters:
 - `q`: the question or task to animate.
 - `to`: `copilot`, `bing`, `learn`, or `work`.
 - `submit`: `manual` or `auto`. Auto mode forces the destination to Bing and submits after the animation.
+- `style`: `helpful` or `spicy`. This changes the on-page coaching voice, not the best-practice rewrite structure.
 
 ## Version display
 
 The footer displays the current site version, for example:
 
 ```text
-Version v0.8.3
+Version v0.8.4
 ```
 
 After each publish, verify the visible footer version to make sure the browser is not showing a cached copy.
