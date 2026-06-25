@@ -16,6 +16,7 @@
   <meta property="og:title" content="Let Me Copilot That For You">
   <meta property="og:description" content="Type a question, generate a tiny teaching link, and share a friendly nudge toward Bing and better prompts.">
   <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="theme-color" content="#b11f4b">
   <style>
     :root {
@@ -802,13 +803,13 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.8.8</span></span>
+      <span>Version <span id="version">v0.8.9</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.8.8";
+    const SITE_VERSION = "v0.8.9";
 
     const state = {
       question: "",
@@ -917,7 +918,7 @@
     function enhancedPrompt(question) {
       const trimmed = question.trim();
       const intent = classifyRequest(trimmed);
-      return `Please help improve this ${intent.type} request:\n\n"${trimmed}"\n\nUse the request above to create a clearer, more useful prompt. Please structure the response like this:\n\n1. Intent: Explain what the person is really trying to accomplish.\n2. Context needed: Identify the context, constraints, audience, or assumptions that would make the answer better.\n3. Desired output: Describe the best response format for this request. ${intent.format}\n4. Rewritten prompt: Using sections 1-3, recreate the original request as a clearer prompt someone could copy and use.\n5. Clarifying questions: Ask the most important questions that would improve the prompt if more detail is needed.\n\nGuidance: ${intent.lens} Keep the rewritten prompt clear, specific, and professional.`;
+      return `Please help improve this ${intent.type} request:\n\n"${trimmed}"\n\nUse the request above to create a clearer, more useful prompt. Please structure the response like this:\n\n1. Intent: Explain what the person is really trying to accomplish.\n2. Context needed: Identify the context, constraints, audience, or assumptions that would make the answer better.\n3. Desired output: Describe the best response format for this request. ${intent.format}\n4. Clarifying questions: Ask the most important questions that would improve the prompt if more detail is needed.\n5. Rewritten prompt: Using sections 1-4, recreate the original request as a clearer prompt someone could copy and use.\n\nGuidance: ${intent.lens} Keep the rewritten prompt clear, specific, and professional.`;
     }
 
     function updateCoaching(prompt) {
@@ -926,7 +927,7 @@
       $("#why-intent").textContent = `Detected this as a ${intent.type} request and reframed it around the desired outcome.`;
       $("#why-ai").textContent = "Turns the ask into a complete prompt with goal, structure, assumptions, and guidance.";
       $("#why-structure").textContent = `Uses sections 1-3 to clarify intent, context, and desired output before rewriting the prompt.`;
-      $("#why-constraints").textContent = `Section 4 recreates the prompt, then section 5 asks clarifying questions if more detail is needed.`;
+      $("#why-constraints").textContent = `Clarifying questions come before the final rewrite, so the last section is the prompt someone can copy and use.`;
     }
 
     function updateSubmitModeUi() {
@@ -1027,7 +1028,7 @@
     function typeText(text, index = 0) {
       $("#typed").textContent = text.slice(0, index);
       if (index <= text.length) {
-        wait(18 + Math.random() * 35, () => typeText(text, index + 1));
+        wait(7 + Math.random() * 14, () => typeText(text, index + 1));
       } else {
         doneTyping();
       }
