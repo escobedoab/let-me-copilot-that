@@ -759,7 +759,7 @@
                 <ul class="why-list">
                   <li><strong>Clear intent</strong><span id="why-intent">Turns a casual question into a direct request.</span></li>
                   <li><strong>AI-answer cue</strong><span id="why-ai">Asks for a synthesized answer, which can help trigger AI-style results.</span></li>
-                  <li><strong>Useful structure</strong><span id="why-structure">Requests concise explanation, key points, and next steps.</span></li>
+                  <li><strong>Useful structure</strong><span id="why-structure">Requests concise explanation, key points, and clarification questions.</span></li>
                   <li><strong>Better constraints</strong><span id="why-constraints">Adds tone and output guidance so the answer is easier to use.</span></li>
                 </ul>
               </div>
@@ -802,13 +802,13 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.8.4</span></span>
+      <span>Version <span id="version">v0.8.5</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.8.4";
+    const SITE_VERSION = "v0.8.5";
 
     const state = {
       question: "",
@@ -909,7 +909,7 @@
       return checks.find((check) => check.test.test(text)) || {
         type: "general",
         outcome: "a useful answer",
-        format: "Give a direct answer, key points, and a practical next step.",
+        format: "Give a direct answer, key points, and useful clarification questions.",
         lens: "Focus on what is most useful to do next."
       };
     }
@@ -917,16 +917,16 @@
     function enhancedPrompt(question) {
       const trimmed = question.trim();
       const intent = classifyRequest(trimmed);
-      return `Use an AI-generated answer to respond to this ${intent.type} request:\n\n"${trimmed}"\n\nGoal: Produce ${intent.outcome}.\n\nPlease provide:\n1. A direct answer in plain language.\n2. The most important context or assumptions.\n3. ${intent.format}\n4. Key points organized clearly.\n5. A practical recommendation or next step.\n\nGuidance: ${intent.lens} Keep the answer clear, helpful, and professional.`;
+      return `Please help with this ${intent.type} request:\n\n"${trimmed}"\n\nGoal: Produce ${intent.outcome}.\n\nPlease provide:\n1. A direct answer in plain language.\n2. The most important context or assumptions.\n3. ${intent.format}\n4. Key points organized clearly.\n5. Clarifying questions that would help improve the answer if more detail is needed.\n\nGuidance: ${intent.lens} Keep the answer clear, helpful, and professional.`;
     }
 
     function updateCoaching(prompt) {
       const intent = classifyRequest(state.question);
       $("#prompt-preview").textContent = prompt;
       $("#why-intent").textContent = `Detected this as a ${intent.type} request and reframed it around the desired outcome.`;
-      $("#why-ai").textContent = "Adds language like \"AI-generated answer,\" \"synthesize,\" and \"summary\" to encourage an AI-style response.";
+      $("#why-ai").textContent = "Turns the ask into a complete prompt with goal, structure, assumptions, and guidance.";
       $("#why-structure").textContent = `Uses a response format that fits the ask: ${intent.format}`;
-      $("#why-constraints").textContent = `Adds guidance for better quality: ${intent.lens}`;
+      $("#why-constraints").textContent = `Asks clarifying questions when more detail would improve the answer: ${intent.lens}`;
     }
 
     function updateSubmitModeUi() {

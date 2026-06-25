@@ -25,8 +25,8 @@ Research summary from the current public site and search snippets:
 - Link creators can choose the recipient experience: stop on the coaching page, or auto-submit to Bing after the animation.
 - Submit actions always open Bing AI Search in a new tab with the rewritten prompt. If a browser blocks the new tab, the page stays visible and asks the recipient to click submit.
 - Rewritten prompts dynamically classify the original ask (compare, draft, plan, troubleshoot, summarize, research, code, explain, or general) and reconstruct it into a structured AI-ready request.
-- Dynamic rewrites include a direct answer request, context/assumptions, intent-specific output format, key points, and a practical recommendation.
-- Rewritten prompts also include AI-answer cues such as "AI-generated answer," "plain language," "key points," and "next step" to increase the chance of an AI-style search response.
+- Dynamic rewrites include a direct answer request, context/assumptions, intent-specific output format, key points, and clarifying questions.
+- Rewritten prompts avoid awkward AI preambles and focus on making the user's original request clearer, more structured, and easier to answer.
 - Bing ultimately controls whether an AI answer appears; account, region, query, and feature rollout can still affect the result.
 - No analytics, no third-party scripts, no backend, and no stored user data.
 - GitHub Pages-ready static deployment.
@@ -57,7 +57,7 @@ Parameters:
 The footer displays the current site version, for example:
 
 ```text
-Version v0.8.4
+Version v0.8.5
 ```
 
 After each publish, verify the visible footer version to make sure the browser is not showing a cached copy.
