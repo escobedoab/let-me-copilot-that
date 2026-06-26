@@ -31,7 +31,7 @@ Research summary from the current public site and search snippets:
 - Rewritten prompts avoid awkward AI preambles and focus on making the user's original request clearer, more structured, and easier to answer.
 - Exact prompt mode skips rewriting entirely; it animates and submits the original prompt exactly as typed.
 - Exact prompt mode hides the rewrite-coaching detail panel because nothing changed.
-- Exact prompt mode is the default style. Helpful and spicy modes show the rewrite scaffold immediately, then animate the original request inside it so the added structure is clear.
+- Exact prompt mode is the default style. Helpful and spicy modes show the coaching path below, while the mockup types only the final rewritten prompt that is sent to Bing.
 - Bing ultimately controls whether an AI answer appears; account, region, query, and feature rollout can still affect the result.
 - No analytics, no third-party scripts, no backend, and no stored user data.
 - GitHub Pages-ready static deployment.
@@ -62,7 +62,7 @@ Parameters:
 The footer displays the current site version, for example:
 
 ```text
-Version v0.9.9
+Version v0.10.0
 ```
 
 After each publish, verify the visible footer version to make sure the browser is not showing a cached copy.

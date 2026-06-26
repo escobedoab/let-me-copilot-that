@@ -780,7 +780,7 @@
             <div class="result-panel" id="result-panel">
               <p id="punchline">Look at that. A question became a prompt.</p>
               <div class="coaching-panel" id="coaching-panel">
-                <h3>Prompt improvement path</h3>
+                <h3>What changed and why</h3>
                 <p class="panel-note">This is a teaching preview. It shows how the prompt is improved; only the final rewritten prompt is sent to Bing AI Search.</p>
                 <p class="prompt-preview" id="prompt-preview"></p>
                 <ul class="why-list">
@@ -829,13 +829,13 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.9.9</span></span>
+      <span>Version <span id="version">v0.10.0</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.9.9";
+    const SITE_VERSION = "v0.10.0";
 
     const state = {
       question: "",
@@ -1027,9 +1027,9 @@
       return byType[intent.type] || byType.general;
     }
 
-    function finalPrompt(question) {
+    function finalPrompt(question, intentQuestion = question) {
       const trimmed = question.trim();
-      const intent = classifyRequest(trimmed);
+      const intent = classifyRequest(intentQuestion.trim());
       const questions = clarificationQuestions(intent);
       return `I need help with this ${intent.type} request:\n\n"${trimmed}"\n\nPlease answer in a way that produces ${intent.outcome}.\n\nInclude:\n- A direct answer in plain language.\n- The most important context or assumptions.\n- ${intent.format}\n- Key points organized clearly.\n- Proceed with reasonable assumptions on this first pass so I still get a useful answer.\n- Briefly state the assumptions you made.\n- If more detail would improve the answer, include these clarifying questions at the end for follow-up: ${questions.join(" ")}\n\nGuidance: ${intent.lens} Keep the response clear, specific, and professional.`;
     }
@@ -1054,12 +1054,6 @@
         .replaceAll("'", "&#039;");
     }
 
-    function rewriteFrame(partialQuestion) {
-      const intent = classifyRequest(state.question || partialQuestion);
-      const questions = clarificationQuestions(intent).map((question) => `- ${escapeHtml(question)}`).join("\n");
-      return `1. Intent\nThe person is trying to get ${escapeHtml(intent.outcome)}.\n\n2. Context needed\nThe answer would improve with details about audience, constraints, timeline, current state, and what success looks like.\n\n3. Desired output\n${escapeHtml(intent.format)}\n\n4. Clarifying questions\n${questions}\n\n5. Rewritten prompt\nI need help with this ${escapeHtml(intent.type)} request:\n\n"<span class="typing-focus">${escapeHtml(partialQuestion)}</span>"\n\nPlease answer in a way that produces ${escapeHtml(intent.outcome)}.\n\nInclude:\n- A direct answer in plain language.\n- The most important context or assumptions.\n- ${escapeHtml(intent.format)}\n- Key points organized clearly.\n- Proceed with reasonable assumptions on this first pass so I still get a useful answer.\n- Briefly state the assumptions you made.\n- If more detail would improve the answer, include the clarifying questions above at the end for follow-up.\n\nGuidance: ${escapeHtml(intent.lens)} Keep the response clear, specific, and professional.`;
-    }
-
     function renderTypedPrompt(partialQuestion) {
       const typed = $("#typed");
       if (state.style === "exact") {
@@ -1067,7 +1061,7 @@
         return;
       }
 
-      typed.innerHTML = rewriteFrame(partialQuestion);
+      typed.textContent = finalPrompt(partialQuestion, state.question);
     }
 
     function updateCoaching(prompt) {
