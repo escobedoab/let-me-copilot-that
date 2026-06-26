@@ -532,6 +532,13 @@
       font-size: 1rem;
     }
 
+    .panel-note {
+      margin: 0;
+      color: var(--cp-text-muted);
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
     .prompt-preview {
       margin: 0;
       padding: 12px;
@@ -773,13 +780,14 @@
             <div class="result-panel" id="result-panel">
               <p id="punchline">Look at that. A question became a prompt.</p>
               <div class="coaching-panel" id="coaching-panel">
-                <h3>What changed and why</h3>
+                <h3>Prompt improvement path</h3>
+                <p class="panel-note">This is a teaching preview. It shows how the prompt is improved; only the final rewritten prompt is sent to Bing AI Search.</p>
                 <p class="prompt-preview" id="prompt-preview"></p>
                 <ul class="why-list">
-                  <li><strong>Clear intent</strong><span id="why-intent">Turns a casual question into a direct request.</span></li>
-                  <li><strong>AI-answer cue</strong><span id="why-ai">Asks for a synthesized answer, which can help trigger AI-style results.</span></li>
-                  <li><strong>Useful structure</strong><span id="why-structure">Requests concise explanation, key points, and clarification questions.</span></li>
-                  <li><strong>Better constraints</strong><span id="why-constraints">Adds tone and output guidance so the answer is easier to use.</span></li>
+                  <li><strong>Request type</strong><span id="why-intent">Identifies what kind of help the person needs.</span></li>
+                  <li><strong>Missing context</strong><span id="why-ai">Shows what details would make the answer more useful.</span></li>
+                  <li><strong>Answer shape</strong><span id="why-structure">Chooses a response format that fits the request.</span></li>
+                  <li><strong>Final prompt only</strong><span id="why-constraints">Sends Bing the cleaned-up prompt, not this teaching preview.</span></li>
                 </ul>
               </div>
               <div class="actions">
@@ -821,13 +829,13 @@
     <footer>
       Built for a smile, better prompts, and faster answers. Unofficial project; not affiliated with Microsoft.
       <br>
-      <span>Version <span id="version">v0.9.8</span></span>
+      <span>Version <span id="version">v0.9.9</span></span>
     </footer>
   </main>
 
   <script>
     const $ = (selector) => document.querySelector(selector);
-    const SITE_VERSION = "v0.9.8";
+    const SITE_VERSION = "v0.9.9";
 
     const state = {
       question: "",
@@ -864,80 +872,102 @@
       }
     };
 
+    const requestCategories = [
+      {
+        type: "presentation prep",
+        keywords: ["presentation", "presentations", "present", "public speaking", "speech", "slides", "rehearse", "rehearsal", "practice", "remember", "memorize", "talk track", "speaker notes"],
+        outcome: "a practical presentation practice and memory plan",
+        format: "Include rehearsal methods, memory techniques, delivery practice, timing, and day-of confidence tips.",
+        lens: "Focus on methods that help someone remember the message without sounding scripted."
+      },
+      {
+        type: "draft",
+        keywords: ["write", "draft", "compose", "email", "message", "post", "reply", "announcement", "linkedin", "invite", "follow up", "follow-up", "recap"],
+        outcome: "a polished draft I can send or adapt",
+        format: "Provide a ready-to-use draft plus a shorter alternate version.",
+        lens: "Make the tone professional, clear, and human."
+      },
+      {
+        type: "plan",
+        keywords: ["plan", "strategy", "roadmap", "steps", "timeline", "approach", "how should i", "how do i", "prepare", "prep", "organize", "prioritize", "execute"],
+        outcome: "an actionable plan",
+        format: "Break the answer into phases, decisions, risks, and actions.",
+        lens: "Prioritize practical steps over theory."
+      },
+      {
+        type: "troubleshoot",
+        keywords: ["fix", "debug", "error", "issue", "problem", "broken", "not working", "troubleshoot", "why won't", "fails", "failure", "stuck"],
+        outcome: "a troubleshooting path",
+        format: "List likely causes, quick checks, and fixes in order.",
+        lens: "Start with the simplest likely cause."
+      },
+      {
+        type: "compare",
+        keywords: ["compare", "difference", "versus", "vs", "which is better", "pros and cons", "tradeoff", "trade-off", "choose between"],
+        outcome: "a comparison with tradeoffs and a recommendation",
+        format: "Use a short comparison table, then summarize the best choice.",
+        lens: "Call out when each option is the better fit."
+      },
+      {
+        type: "summarize",
+        keywords: ["summarize", "summary", "recap", "tldr", "tl;dr", "brief", "key takeaways", "digest", "overview"],
+        outcome: "a concise summary",
+        format: "Return an executive summary, key bullets, and open questions.",
+        lens: "Separate facts from assumptions."
+      },
+      {
+        type: "research",
+        keywords: ["research", "find", "lookup", "latest", "sources", "evidence", "market", "trend", "statistics", "benchmark", "examples", "best practices"],
+        outcome: "a sourced research answer",
+        format: "Synthesize the answer and include source links or search terms to verify.",
+        lens: "Highlight what is current, uncertain, or needs verification."
+      },
+      {
+        type: "code",
+        keywords: ["code", "script", "api", "javascript", "typescript", "python", "html", "css", "github", "bug", "function", "component", "deploy"],
+        outcome: "an implementation-oriented answer",
+        format: "Explain the approach, provide example code, and note edge cases.",
+        lens: "Favor simple, maintainable solutions."
+      },
+      {
+        type: "learn",
+        keywords: ["learn", "teach", "study", "understand", "remember", "practice", "improve", "skill", "training", "course"],
+        outcome: "a learning path with practice methods",
+        format: "Explain the concept, then give a practice plan and ways to retain it.",
+        lens: "Use plain language, examples, and memory-friendly steps."
+      },
+      {
+        type: "explain",
+        keywords: ["what is", "why", "explain", "meaning", "how does", "how do", "walk me through", "simple terms"],
+        outcome: "a clear explanation",
+        format: "Explain it simply first, then add detail and examples.",
+        lens: "Use plain language and avoid jargon unless needed."
+      }
+    ];
+
+    function categoryScore(text, category) {
+      return category.keywords.reduce((score, keyword) => {
+        const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const pattern = keyword.includes(" ")
+          ? new RegExp(escaped, "i")
+          : new RegExp(`\\b${escaped}\\b`, "i");
+        return score + (pattern.test(text) ? 1 : 0);
+      }, 0);
+    }
+
     function classifyRequest(question) {
       const text = question.toLowerCase();
-      const checks = [
-        {
-          type: "presentation prep",
-          test: /\b(presentation|presentations|present|public speaking|speech|slides|rehearse|practice|remember|memorize)\b/,
-          outcome: "a practical presentation practice and memory plan",
-          format: "Include rehearsal methods, memory techniques, delivery practice, timing, and day-of confidence tips.",
-          lens: "Focus on methods that help someone remember the message without sounding scripted."
-        },
-        {
-          type: "compare",
-          test: /\b(compare|difference|versus|vs\.?|which is better|pros and cons)\b/,
-          outcome: "a comparison with tradeoffs and a recommendation",
-          format: "Use a short comparison table, then summarize the best choice.",
-          lens: "Call out when each option is the better fit."
-        },
-        {
-          type: "draft",
-          test: /\b(write|draft|compose|email|message|post|reply|announcement)\b/,
-          outcome: "a polished draft I can send or adapt",
-          format: "Provide a ready-to-use draft plus a shorter alternate version.",
-          lens: "Make the tone professional, clear, and human."
-        },
-        {
-          type: "plan",
-          test: /\b(plan|strategy|roadmap|steps|timeline|approach|how should i|how do i)\b/,
-          outcome: "an actionable plan",
-          format: "Break the answer into phases, decisions, risks, and next actions.",
-          lens: "Prioritize practical steps over theory."
-        },
-        {
-          type: "troubleshoot",
-          test: /\b(fix|debug|error|issue|problem|broken|not working|troubleshoot)\b/,
-          outcome: "a troubleshooting path",
-          format: "List likely causes, quick checks, and fixes in order.",
-          lens: "Start with the simplest likely cause."
-        },
-        {
-          type: "summarize",
-          test: /\b(summarize|recap|tldr|tl;dr|brief|key takeaways)\b/,
-          outcome: "a concise summary",
-          format: "Return an executive summary, key bullets, and open questions.",
-          lens: "Separate facts from assumptions."
-        },
-        {
-          type: "research",
-          test: /\b(research|find|lookup|latest|sources|evidence|market|trend)\b/,
-          outcome: "a sourced research answer",
-          format: "Synthesize the answer and include source links or search terms to verify.",
-          lens: "Highlight what is current, uncertain, or needs verification."
-        },
-        {
-          type: "code",
-          test: /\b(code|script|api|javascript|typescript|python|html|css|github)\b/,
-          outcome: "an implementation-oriented answer",
-          format: "Explain the approach, provide example code, and note edge cases.",
-          lens: "Favor simple, maintainable solutions."
-        },
-        {
-          type: "explain",
-          test: /\b(what is|why|explain|teach|learn|understand)\b/,
-          outcome: "a clear explanation",
-          format: "Explain it simply first, then add detail and examples.",
-          lens: "Use plain language and avoid jargon unless needed."
-        }
-      ];
-
-      return checks.find((check) => check.test.test(text)) || {
+      const fallback = {
         type: "general",
         outcome: "a useful answer",
         format: "Give a direct answer, key points, and useful clarification questions.",
         lens: "Focus on what is most useful to do next."
       };
+
+      return requestCategories
+        .map((category) => ({ ...category, score: categoryScore(text, category) }))
+        .filter((category) => category.score > 0)
+        .sort((a, b) => b.score - a.score)[0] || fallback;
     }
 
     function clarificationQuestions(intent) {

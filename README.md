@@ -24,7 +24,8 @@ Research summary from the current public site and search snippets:
 - The share button uses the browser share sheet when available and falls back to copying the hosted link.
 - Link creators can choose the recipient experience: stop on the coaching page (default), or auto-submit to Bing after the animation.
 - Submit actions always open Bing AI Search in a new tab with the rewritten prompt. If a browser blocks the new tab, the page stays visible and asks the recipient to click submit.
-- Rewritten prompts dynamically classify the original ask (compare, draft, plan, troubleshoot, summarize, research, code, explain, or general), identify intent/context/output needs, and then recreate a clearer prompt.
+- Rewritten prompts dynamically classify the original ask using scored top categories: presentation prep, draft, plan, troubleshoot, compare, summarize, research, code, learn, explain, or general.
+- The category engine identifies intent/context/output needs, then recreates a clearer prompt from the best-matching category.
 - Dynamic rewrites now use a five-part on-page coaching structure: intent, context needed, desired output, clarifying questions, and final rewritten prompt.
 - Bing AI Search receives only the final rewritten prompt, not the full coaching framework, so the search result stays focused on answering the request. The rewritten prompt asks AI Search to proceed with reasonable assumptions on the first pass, then include clarification questions for follow-up.
 - Rewritten prompts avoid awkward AI preambles and focus on making the user's original request clearer, more structured, and easier to answer.
@@ -61,7 +62,7 @@ Parameters:
 The footer displays the current site version, for example:
 
 ```text
-Version v0.9.8
+Version v0.9.9
 ```
 
 After each publish, verify the visible footer version to make sure the browser is not showing a cached copy.
